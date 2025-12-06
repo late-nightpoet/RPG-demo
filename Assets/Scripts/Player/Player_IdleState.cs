@@ -1,0 +1,51 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Player_IdleState : PlayerStateBase
+{
+   public override void Enter()
+    {
+        Debug.Log("Enter Idle State");
+        if (player.Model.Animator != null) player.Model.Animator.applyRootMotion = false;
+        //播放角色待机动画
+        player.PlayAnimation("Idle");
+    }
+
+    public override void Update()
+    {
+        player.MovementHelper.CalculateInput();
+        player.MovementHelper.GroundedCheck();
+        //从locomotion状态切换到idle状态时，先减速到停止再响应跳跃和移动输入
+        if (player.Ctx.isStopped)
+        {
+            player.MovementHelper.DecelerateToStop();
+            player.MovementHelper.Sync();
+            if (player.Ctx.speed2D <= 0.01f)
+                player.Ctx.isStopped = false;
+        }
+         if (player.Ctx.isJumping)
+        {
+            Debug.Log("Exiting Idle State due to jump input");
+            player.ChangeState(PlayerState.Jump);
+            return;
+        }
+        if(!player.Ctx.isGrounded)
+        {
+            //player.MovementHelper.ApplyGravity();
+            //player.MovementHelper.Move();
+            //切换到falling状态
+            player.ChangeState(PlayerState.Fall);
+            return;
+        }
+        //检测玩家移动输入
+        if(player.Ctx.MoveInput.magnitude > 0.1f)
+        {
+            Debug.Log("Exiting Idle State due to movement input");
+            player.MovementHelper.Sync();
+            //切换到移动状态
+            player.ChangeState(PlayerState.Locomotion);
+            return;
+        }
+    }
+}
