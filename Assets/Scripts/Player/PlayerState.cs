@@ -9,5 +9,6 @@ public enum PlayerState
     Jump,
     Fall,
     crouching,
-    Land
+    Land,
+    DodgeRoll
 }

@@ -21,6 +21,8 @@ public class PlayerInputReader : MonoBehaviour, PlayerInput.IPlayerActions
 
     public Action onJumpPerformed;
 
+    public Action onRollPerformed;
+
     public Action onLockOnToggled;
 
     public Action onSprintActivated;
@@ -61,6 +63,12 @@ public class PlayerInputReader : MonoBehaviour, PlayerInput.IPlayerActions
         onJumpPerformed?.Invoke();
     }
 
+    public void OnRoll(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        if(!context.performed) return;
+        onRollPerformed?.Invoke();
+    }
+    
     public void OnToggleWalk(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
         if(!context.performed) return;

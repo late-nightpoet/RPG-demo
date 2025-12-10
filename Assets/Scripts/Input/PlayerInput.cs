@@ -98,6 +98,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Roll"",
+                    ""type"": ""Button"",
+                    ""id"": ""0f671130-f7b2-40bf-b269-335274f88b1f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -232,6 +241,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""LockOn"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3057aeb9-3d74-4026-b477-b8316b7c592d"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Roll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -248,6 +268,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
         m_Player_Crouch = m_Player.FindAction("Crouch", throwIfNotFound: true);
         m_Player_LockOn = m_Player.FindAction("LockOn", throwIfNotFound: true);
+        m_Player_Roll = m_Player.FindAction("Roll", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -322,6 +343,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Aim;
     private readonly InputAction m_Player_Crouch;
     private readonly InputAction m_Player_LockOn;
+    private readonly InputAction m_Player_Roll;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -334,6 +356,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Aim => m_Wrapper.m_Player_Aim;
         public InputAction @Crouch => m_Wrapper.m_Player_Crouch;
         public InputAction @LockOn => m_Wrapper.m_Player_LockOn;
+        public InputAction @Roll => m_Wrapper.m_Player_Roll;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -367,6 +390,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @LockOn.started += instance.OnLockOn;
             @LockOn.performed += instance.OnLockOn;
             @LockOn.canceled += instance.OnLockOn;
+            @Roll.started += instance.OnRoll;
+            @Roll.performed += instance.OnRoll;
+            @Roll.canceled += instance.OnRoll;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -395,6 +421,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @LockOn.started -= instance.OnLockOn;
             @LockOn.performed -= instance.OnLockOn;
             @LockOn.canceled -= instance.OnLockOn;
+            @Roll.started -= instance.OnRoll;
+            @Roll.performed -= instance.OnRoll;
+            @Roll.canceled -= instance.OnRoll;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -422,5 +451,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnAim(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
         void OnLockOn(InputAction.CallbackContext context);
+        void OnRoll(InputAction.CallbackContext context);
     }
 }

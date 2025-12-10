@@ -23,6 +23,7 @@ public sealed class PlayerMovementHelper
         ctx.inputReader.onSprintDeactivated += OnSprintDeactivated;
         ctx.inputReader.onWalkToggled += OnWalkToggled;
         ctx.inputReader.onJumpPerformed += OnAnyJumpPerformed;
+        ctx.inputReader.onRollPerformed += OnAnyRollPerformed;
     }
 
     private void UnbindInputEvents()
@@ -32,6 +33,7 @@ public sealed class PlayerMovementHelper
         ctx.inputReader.onSprintDeactivated -= OnSprintDeactivated;
         ctx.inputReader.onWalkToggled -= OnWalkToggled;
         ctx.inputReader.onJumpPerformed -= OnAnyJumpPerformed;
+        ctx.inputReader.onRollPerformed -= OnAnyRollPerformed;
     }
 
     public void CalculateInput()
@@ -302,6 +304,16 @@ public sealed class PlayerMovementHelper
         if (!ctx.isGrounded || ctx.isJumping) return;
         ctx.isJumping = true;
         ctx.isGrounded = false;
+    }
+
+    private void OnAnyRollPerformed()
+    {
+        if (ctx == null) return;
+        if (!ctx.isGrounded) return;
+        if (ctx.isRolling || ctx.rollRequested) return;
+        if (Time.time - ctx.lastRollTime < ctx.rollCooldown) return; // honor cooldown
+
+        ctx.rollRequested = true;
     }
 
     public void DecelerateToStop()

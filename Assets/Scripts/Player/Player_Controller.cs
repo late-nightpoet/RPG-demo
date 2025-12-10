@@ -169,6 +169,10 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner
                 Debug.Log("Change to Jump State");
                 stateMachine.ChangeState<Player_JumpState>();
                 break;
+            case PlayerState.DodgeRoll:
+                Debug.Log("Change to Roll State");
+                stateMachine.ChangeState<Player_DodgeRollState>();
+                break;
         }
     }
 

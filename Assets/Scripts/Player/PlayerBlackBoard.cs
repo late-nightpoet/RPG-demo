@@ -128,6 +128,19 @@ public sealed class PlayerBlackBoard
     //在空中持续掉落的时间
     public float fallingDuration;
 
+    // Dodge roll runtime params
+    public bool rollRequested = false; // set by input, consumed by grounded states
+    public bool isRolling = false;
+    public int rollDir = 0; // 0=F,1=B,2=L,3=R
+    public float rollDuration = 0.6f; // seconds
+    public AnimationCurve rollSpeedCurve = AnimationCurve.Linear(0, 1, 1, 0); // normalized time -> speed multiplier
+    public float rollDistance = 4f; // total distance
+    public float rollCooldown = 0.6f;
+    public float lastRollTime = -999f;
+    public float rollStartTime = -999f;
+
+    
+
     #endregion
 
     public void ResetFallingTimer()

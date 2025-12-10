@@ -31,6 +31,12 @@ public class Player_IdleState : PlayerStateBase
             player.ChangeState(PlayerState.Jump);
             return;
         }
+        if (player.Ctx.rollRequested)
+        {
+            player.Ctx.rollRequested = false;
+            player.ChangeState(PlayerState.DodgeRoll);
+            return;
+        }
         if(!player.Ctx.isGrounded)
         {
             //player.MovementHelper.ApplyGravity();

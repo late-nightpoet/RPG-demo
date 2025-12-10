@@ -37,6 +37,12 @@ public class Player_LocomotionState : PlayerStateBase
             player.ChangeState(PlayerState.Fall);
             return;
         }
+        if (player.Ctx.rollRequested && player.Ctx.isGrounded)
+        {
+            player.Ctx.rollRequested = false;
+            player.ChangeState(PlayerState.DodgeRoll);
+            return;
+        }
         bool hasMoveInput = player.Ctx.SmoothedMoveInput.magnitude > 0.1f;
 
         if (hasMoveInput)
