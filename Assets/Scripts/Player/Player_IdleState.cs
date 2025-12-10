@@ -7,6 +7,7 @@ public class Player_IdleState : PlayerStateBase
    public override void Enter()
     {
         Debug.Log("Enter Idle State");
+        player.Ctx.isStopped = true;
         if (player.Model.Animator != null) player.Model.Animator.applyRootMotion = false;
         //播放角色待机动画
         player.PlayAnimation("Idle");
@@ -39,13 +40,14 @@ public class Player_IdleState : PlayerStateBase
             return;
         }
         //检测玩家移动输入
-        if(player.Ctx.MoveInput.magnitude > 0.1f)
+        if(player.Ctx.SmoothedMoveInput.magnitude > 0.1f)
         {
             Debug.Log("Exiting Idle State due to movement input");
-            player.MovementHelper.Sync();
+            player.Ctx.isStopped = false;
             //切换到移动状态
             player.ChangeState(PlayerState.Locomotion);
             return;
         }
+        player.MovementHelper.Sync();
     }
 }

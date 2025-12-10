@@ -96,8 +96,13 @@ public sealed class PlayerBlackBoard
     //赋值给animator的MoveSpeed参数，将xz轴的速度合并为一个值
     public float speed2D;
 
-    //玩家输入的移动向量,wasd方向
-    public Vector2 MoveInput;
+    //玩家输入的移动向量,wasd方向,经过平滑后的输入
+    public Vector2 SmoothedMoveInput;
+
+    //未平滑的原始输入，值会骤变为0，1等
+    public Vector2 RawMoveInput;
+
+    public const float INPUT_SMOOTH_SPEED = 8f;
 
     //角色当前的真实移动速度（包含水平x/z轴和垂直y轴（jump和fall时会有垂直的速度））
     public Vector3 velocity;

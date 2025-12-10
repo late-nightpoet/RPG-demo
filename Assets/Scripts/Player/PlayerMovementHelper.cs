@@ -75,11 +75,18 @@ public sealed class PlayerMovementHelper
             if (Camera.main != null) ctx.cameraTransform = Camera.main.transform;
         }
         if (ctx.inputReader != null)
-            ctx.MoveInput = ctx.inputReader._moveComposite;
+            ctx.RawMoveInput = ctx.inputReader._moveComposite;
         else
-            ctx.MoveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+            ctx.RawMoveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        // 2. 平滑插值
+        ctx.SmoothedMoveInput = Vector2.Lerp(ctx.SmoothedMoveInput, ctx.RawMoveInput, PlayerBlackBoard.INPUT_SMOOTH_SPEED * Time.deltaTime);
+        //防止SmoothedMoveInput指数级衰减但不为0导致的微小抖动
+        if (ctx.SmoothedMoveInput.sqrMagnitude < 1e-4f)
+        {
+            ctx.SmoothedMoveInput = Vector2.zero;
+        }
         // todo movedirection之后还会根据相机方向变化
-        ctx.moveDirection = new Vector3(ctx.MoveInput.x, 0f, ctx.MoveInput.y);
+        ctx.moveDirection = new Vector3(ctx.SmoothedMoveInput.x, 0f, ctx.SmoothedMoveInput.y);
         //Debug.Log("ctx.moveDirection before camera adjustment: " + ctx.moveDirection.ToString());
           // 相机前后方向（Y 归零）
         Vector3 cameraForward = ctx.cameraTransform != null 
@@ -91,10 +98,10 @@ public sealed class PlayerMovementHelper
         //Debug.Log("cameraForward: " + cameraForward.ToString() + " | cameraRight: " + cameraRight.ToString());
 
         // 计算世界空间移动方向（相对相机）
-        ctx.moveDirection = (cameraForward * ctx.MoveInput.y) + (cameraRight * ctx.MoveInput.x);
+        ctx.moveDirection = (cameraForward * ctx.SmoothedMoveInput.y) + (cameraRight * ctx.SmoothedMoveInput.x);
         //Debug.Log("ctx.moveDirection after camera adjustment: " + ctx.moveDirection.ToString());
-        ctx.animator.SetFloat("VerticalSpeed", ctx.MoveInput.y);
-        ctx.animator.SetFloat("HorizontalSpeed", ctx.MoveInput.x);
+        ctx.animator.SetFloat("VerticalSpeed", ctx.SmoothedMoveInput.y);
+        ctx.animator.SetFloat("HorizontalSpeed", ctx.SmoothedMoveInput.x);
         // 新：每帧根据当前 move input 与 sprint 按键状态评估是否冲刺
         EvaluateSprint();
     }
@@ -105,7 +112,7 @@ public sealed class PlayerMovementHelper
         if (!ctx.isGrounded)
         {
             // 空中：维持起跳时的水平速度，只允许少量修正
-            if (ctx.MoveInput.sqrMagnitude > 0.01f)
+            if (ctx.SmoothedMoveInput.sqrMagnitude > 0.01f)
             {
                 Vector3 desired = ctx.moveDirection.normalized * ctx.currentMaxSpeed;
                 ctx.velocity.x = Mathf.Lerp(ctx.velocity.x, desired.x, PlayerBlackBoard.ANIMATION_DAMP_TIME * Time.deltaTime);
@@ -286,7 +293,7 @@ public sealed class PlayerMovementHelper
     // 根据当前输入与按键状态决定实际是否冲刺
     private void EvaluateSprint()
     {
-        bool hasMoveInput = ctx.MoveInput.magnitude > 0.1f;
+        bool hasMoveInput = ctx.SmoothedMoveInput.magnitude > 0.1f;
         ctx.isSprinting = sprintPressed && hasMoveInput;
     }
 

@@ -74,12 +74,12 @@ public class Player_LandState : PlayerStateBase
             player.ChangeState(PlayerState.Fall);
             return;
         }
-        else if (player.Ctx.MoveInput.sqrMagnitude > 0.01f)
+        else if (player.Ctx.SmoothedMoveInput.sqrMagnitude > 0.01f)
         {
             player.ChangeState(PlayerState.Locomotion);
             return;
         }
-        else if (player.Ctx.isLandingDone && player.Ctx.MoveInput.sqrMagnitude <= 0.01f)
+        else if (player.Ctx.isLandingDone && player.Ctx.SmoothedMoveInput.sqrMagnitude <= 0.01f)
         {
             Debug.Log("Exiting Land State to Idle State");
             player.ChangeState(PlayerState.Idle);

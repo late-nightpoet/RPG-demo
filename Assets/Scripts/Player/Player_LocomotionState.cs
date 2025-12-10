@@ -24,12 +24,9 @@ public class Player_LocomotionState : PlayerStateBase
     {
         
         player.MovementHelper.CalculateInput();
-        player.MovementHelper.CalculateMoveDirection();
-        player.MovementHelper.FaceMoveDirection();
-        player.MovementHelper.CalculateGait();
-        player.MovementHelper.ApplyGravity();
-        player.MovementHelper.Move();
-        player.MovementHelper.Sync();
+        player.MovementHelper.GroundedCheck();
+       
+
         if (player.Ctx.isJumping)
         {
             player.ChangeState(PlayerState.Jump);
@@ -40,11 +37,28 @@ public class Player_LocomotionState : PlayerStateBase
             player.ChangeState(PlayerState.Fall);
             return;
         }
-        if(player.Ctx.MoveInput.magnitude < 0.1f)
+        bool hasMoveInput = player.Ctx.SmoothedMoveInput.magnitude > 0.1f;
+
+        if (hasMoveInput)
         {
-            Debug.Log("Exiting Locomotion State due to no movement input");
-            player.ChangeState(PlayerState.Idle);
-            return;
+            player.MovementHelper.CalculateMoveDirection();
+            player.Ctx.isStopped = false;
         }
+        else
+        {
+            player.MovementHelper.DecelerateToStop();
+            if (player.Ctx.speed2D <= 0.05f)
+            {
+                player.Ctx.isStopped = true;
+                player.ChangeState(PlayerState.Idle);
+                return;
+            }
+        }
+
+        player.MovementHelper.FaceMoveDirection();
+        player.MovementHelper.CalculateGait();
+        player.MovementHelper.ApplyGravity();
+        player.MovementHelper.Move();
+        player.MovementHelper.Sync();
     }
 }
