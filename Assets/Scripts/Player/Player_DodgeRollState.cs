@@ -100,9 +100,9 @@ public class Player_DodgeRollState : PlayerStateBase
         var stateInfo = player.Ctx.animator.GetCurrentAnimatorStateInfo(0);
         bool inRollState = stateInfo.IsName("Roll_F") || stateInfo.tagHash == Animator.StringToHash("Roll");
         float animNormalized = inRollState ? stateInfo.normalizedTime : 0f;
-
+        //必須要加上這個判斷，因爲doneByTime結束的比動畫播放的進度快，如果不加animNormalized的判斷會導致角色翻到一半直接返回不播放剩下一半的roll動畫
         bool doneByAnim = inRollState && animNormalized >= 0.9f;
-        bool done = doneByTime || doneByAnim;
+        bool done = doneByTime && doneByAnim;
 
         player.MovementHelper.Sync();
 
