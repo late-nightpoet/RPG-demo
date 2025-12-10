@@ -308,8 +308,8 @@ public sealed class PlayerMovementHelper
     {
         if (!ctx.isGrounded) return;
 
-        ctx.velocity.x = Mathf.Lerp(ctx.velocity.x, 0f, ctx.speedChangeDamping/ 10 * Time.deltaTime);
-        ctx.velocity.z = Mathf.Lerp(ctx.velocity.z, 0f, ctx.speedChangeDamping / 10 * Time.deltaTime);
+        ctx.velocity.x = Mathf.Lerp(ctx.velocity.x, 0f, ctx.speedChangeDamping * Time.deltaTime);
+        ctx.velocity.z = Mathf.Lerp(ctx.velocity.z, 0f, ctx.speedChangeDamping  * Time.deltaTime);
         ctx.speed2D = new Vector3(ctx.velocity.x, 0f, ctx.velocity.z).magnitude;
         ctx.speed2D = Mathf.Round(ctx.speed2D * 1000f) / 1000f;
 
