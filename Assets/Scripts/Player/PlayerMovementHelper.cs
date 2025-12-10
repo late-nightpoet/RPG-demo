@@ -150,7 +150,7 @@ public sealed class PlayerMovementHelper
 
         ctx.velocity.z = Mathf.Lerp(ctx.velocity.z, ctx.targetVelocity.z, ctx.speedChangeDamping * Time.deltaTime);
         ctx.velocity.x = Mathf.Lerp(ctx.velocity.x, ctx.targetVelocity.x, ctx.speedChangeDamping * Time.deltaTime);
-        Debug.Log("Calculated Velocity: " + ctx.velocity.ToString() + " | Target Velocity: " + ctx.targetVelocity.ToString() + " ctx.moveDirection: " + ctx.moveDirection.ToString());
+        //Debug.Log("Calculated Velocity: " + ctx.velocity.ToString() + " | Target Velocity: " + ctx.targetVelocity.ToString() + " ctx.moveDirection: " + ctx.moveDirection.ToString());
         //计算2D速度，用于animator的MoveSpeed参数
         ctx.speed2D = new Vector3(ctx.velocity.x, 0f, ctx.velocity.z).magnitude;
         ctx.speed2D = Mathf.Round(ctx.speed2D * 1000f) / 1000f;
