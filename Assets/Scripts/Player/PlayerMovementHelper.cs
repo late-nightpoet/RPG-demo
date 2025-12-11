@@ -312,11 +312,8 @@ public sealed class PlayerMovementHelper
         if (!ctx.isGrounded) return;
         if (ctx.isRolling || ctx.rollRequested) return;
         if (Time.time - ctx.lastRollTime < ctx.rollCooldown) return; // honor cooldown
-       //如果當前按F鍵時沒檢測到方向鍵的輸入就不進入翻滾，反正法環也不是每次按B都能成功進入翻滾
-        if (ctx.SmoothedMoveInput.sqrMagnitude < 0.0001f) 
-        {
-            Debug.Log("No movement input detected during roll request.");
-            return;}
+       // 【关键修改】不要在这里判断 input magnitude，或者判断 RawMoveInput
+        // 如果想要类似法环：无输入=后撤步，有输入=翻滚，这里直接允许通过，去 State 里判断方向
         ctx.rollRequested = true;
     }
 
@@ -335,6 +332,25 @@ public sealed class PlayerMovementHelper
             ctx.speed2D = 0f;
             ctx.isStopped = true;
         }
+    }
+
+    // 专门用来计算基于 RawInput 的方向
+    public Vector3 GetRawWorldDirection()
+    {
+        // 获取原始输入（无平滑）
+        Vector2 rawInput = ctx.inputReader != null ? ctx.inputReader._moveComposite : new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        
+        if (rawInput.sqrMagnitude < 0.01f) return Vector3.zero;
+
+        // 计算相机相关的方向
+        Vector3 cameraForward = ctx.cameraTransform != null 
+            ? new Vector3(ctx.cameraTransform.forward.x, 0f, ctx.cameraTransform.forward.z).normalized 
+            : ctx.transform.forward;
+        Vector3 cameraRight = ctx.cameraTransform != null 
+            ? new Vector3(ctx.cameraTransform.right.x, 0f, ctx.cameraTransform.right.z).normalized 
+            : ctx.transform.right;
+
+        return (cameraForward * rawInput.y) + (cameraRight * rawInput.x);
     }
 
     // 新：对外释放接口，供外部（比如 Player_Controller）在 OnDisable/OnDestroy 调用

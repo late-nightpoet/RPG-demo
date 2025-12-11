@@ -21,15 +21,25 @@ public class Player_DodgeRollState : PlayerStateBase
     private void StartRoll()
     {
         var ctx = player.Ctx;
-        rollDirWorld = ComputeRollDirectionWorld();
-        if (rollDirWorld.sqrMagnitude < 0.0001f)
+        // 【关键修改】使用 Helper 里新写的 GetRawWorldDirection
+        // 这样即使 SmoothedInput 还没反应过来，只要按键了，Raw 肯定有值
+        Vector3 rawDir = player.MovementHelper.GetRawWorldDirection();
+
+        // 逻辑分支：有输入则定向翻滚，无输入则后撤步/向后翻
+        if (rawDir.sqrMagnitude > 0.001f)
         {
-            Debug.Log("No movement input detected during roll start.");
-            // 没有方向输入时不进入翻滚
-            ctx.rollRequested = false;
-            ctx.isRolling = false;
-            player.ChangeState(PlayerState.Idle);
-            return;
+            Debug.Log("Raw input detected, performing Directional Roll");
+            rollDirWorld = rawDir.normalized;
+        }
+        else
+        {
+            // 【类魂逻辑】如果没有按下方向键，通常是向角色背后的方向翻滚（后撤步）
+            // 或者你可以设置为向前翻，取决于你的设计。这里演示向后：
+            Debug.Log("No raw input, performing Backstep/Backward Roll");
+            rollDirWorld = -ctx.transform.forward; 
+            
+            // 如果你的游戏设计是“不按方向键默认向前翻”，则用:
+            // rollDirWorld = ctx.transform.forward;
         }
         ctx.rollRequested = false;
         ctx.isRolling = true;
