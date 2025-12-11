@@ -10,26 +10,27 @@ public class Player_DodgeRollState : PlayerStateBase
     private Vector3 ComputeRollDirectionWorld()
     {
         var ctx = player.Ctx;
-        Vector2 input = ctx.SmoothedMoveInput;
-        Vector3 camForward = ctx.cameraTransform != null
-            ? new Vector3(ctx.cameraTransform.forward.x, 0f, ctx.cameraTransform.forward.z).normalized
-            : ctx.transform.forward;
-        Vector3 camRight = ctx.cameraTransform != null
-            ? new Vector3(ctx.cameraTransform.right.x, 0f, ctx.cameraTransform.right.z).normalized
-            : ctx.transform.right;
-
-        Vector3 worldDir = camForward * input.y + camRight * input.x;
-        if (worldDir.sqrMagnitude < 0.0001f)
+        // 直接复用 CalculateInput 已经算好的相机对齐方向，避免重复计算
+        if (ctx.moveDirection.sqrMagnitude < 0.0001f)
         {
-            return camForward; // 无输入时默认按相机朝前翻滚
+            return Vector3.zero;
         }
-        return worldDir.normalized;
+        return ctx.moveDirection.normalized;
     }
 
     private void StartRoll()
     {
         var ctx = player.Ctx;
         rollDirWorld = ComputeRollDirectionWorld();
+        if (rollDirWorld.sqrMagnitude < 0.0001f)
+        {
+            Debug.Log("No movement input detected during roll start.");
+            // 没有方向输入时不进入翻滚
+            ctx.rollRequested = false;
+            ctx.isRolling = false;
+            player.ChangeState(PlayerState.Idle);
+            return;
+        }
         ctx.rollRequested = false;
         ctx.isRolling = true;
         ctx.rollStartTime = Time.time;
@@ -60,6 +61,9 @@ public class Player_DodgeRollState : PlayerStateBase
         ctx.velocity.x = dir.x * baseSpeed * speedMul;
         ctx.velocity.z = dir.z * baseSpeed * speedMul;
 
+        // 同步动画参数用的移动速度，避免松键后残留旧值
+        ctx.speed2D = new Vector3(ctx.velocity.x, 0f, ctx.velocity.z).magnitude;
+        // Debug.Log("vertical speed during roll: " + ctx.velocity.y + " horizontal speed: " + ctx.speed2D + "movespeed is " + ctx.speed2D);
         player.MovementHelper.ApplyGravity();
         player.MovementHelper.Move();
 
@@ -73,6 +77,7 @@ public class Player_DodgeRollState : PlayerStateBase
         ctx.animator.SetBool("IsRollDone", true);
         ctx.animator.SetBool("IsRolling", false);
         ctx.velocity.x = ctx.velocity.z = 0f;
+        ctx.speed2D = 0f;
     }
 
     public override void Enter()

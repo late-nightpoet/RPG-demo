@@ -312,7 +312,11 @@ public sealed class PlayerMovementHelper
         if (!ctx.isGrounded) return;
         if (ctx.isRolling || ctx.rollRequested) return;
         if (Time.time - ctx.lastRollTime < ctx.rollCooldown) return; // honor cooldown
-
+       //如果當前按F鍵時沒檢測到方向鍵的輸入就不進入翻滾，反正法環也不是每次按B都能成功進入翻滾
+        if (ctx.SmoothedMoveInput.sqrMagnitude < 0.0001f) 
+        {
+            Debug.Log("No movement input detected during roll request.");
+            return;}
         ctx.rollRequested = true;
     }
 
