@@ -134,11 +134,11 @@ public sealed class PlayerBlackBoard
     public int rollDir = 0; // 0=F,1=B,2=L,3=R
     public float dodgeRollDuration = 0.6f; // seconds
     
-    public float dodgeDuration = 0.1f;
+    public float dodgeDuration = 0.6f;
     public AnimationCurve rollSpeedCurve = AnimationCurve.Linear(0, 1, 1, 0); // normalized time -> speed multiplier
     public float rollDistance = 4f; // total distance of roll
     
-    public float dodgeDistance = 4f; // total distance of backstep
+    public float dodgeDistance = 2.5f; // total distance of backstep
     public float rollCooldown = 0.6f;
     public float lastRollTime = -999f;
     public float rollStartTime = -999f;

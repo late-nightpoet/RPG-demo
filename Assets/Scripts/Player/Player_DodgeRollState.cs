@@ -67,12 +67,28 @@ public class Player_DodgeRollState : PlayerStateBase
     {
         var ctx = player.Ctx;
         float duration = isBackstep ? ctx.dodgeDuration : ctx.dodgeRollDuration;
+        // 计算时间进度
+        float timeSinceStart = Time.time - ctx.rollStartTime;
         //因爲動畫是非rootmotion驅動的，所以需要distance\duration來設置每一幀移動的距離
-        progress = Mathf.Clamp01((Time.time - ctx.rollStartTime) / duration); // 0-1 的归一化进度
+        progress = Mathf.Clamp01(timeSinceStart / duration); // 0-1 的归一化进度
+
+        // --- 修复滑步问题的核心逻辑 ---
+        // 如果动画过渡还没完成（比如前0.05秒），强制不移动，或者移动得很慢
+        // 这样能确保角色做出动作姿态后，才开始产生大位移
+        if (timeSinceStart < 0.05f) 
+        {
+            ctx.velocity = Vector3.zero;
+            ctx.speed2D = 0f;
+            return false; 
+        }
+        // ---------------------------
+        // 获取曲线值
+        // 建议在 Inspector 把 rollSpeedCurve 设为 "Ease Out" (一开始快，后面慢)
         float speedMul = ctx.rollSpeedCurve != null ? ctx.rollSpeedCurve.Evaluate(progress) : 1f; // 曲线决定速度随时间的变化
         // 基础速度 = 距离 / 时间
-        // 建议：可以在 Blackboard 加一个 backstepDistance，这里暂时复用 rollDistance
         float distance = isBackstep ? ctx.dodgeDistance : ctx.rollDistance; // 后撤步距离通常短一点
+        // 原来的公式是 匀速 * 曲线倍率，会导致总距离略有偏差，但在动作游戏中手感更重要
+        // 只要把 duration 改回 0.6f，这里的 baseSpeed 就会变成正常的 4~5 m/s
         float baseSpeed = distance / Mathf.Max(duration, 0.0001f); // 匀速情况下的基础速度
         Vector3 moveDir;
         if (isBackstep)
