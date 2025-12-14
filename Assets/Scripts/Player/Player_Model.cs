@@ -7,10 +7,18 @@ public class Player_Model : MonoBehaviour
 {
     [SerializeField]private Animator animator;
     public Animator Animator { get { return animator; } }
+    
+    private ISkillOwner skillOwner;
 
-    public void Init(Action footStepAction)
+    [SerializeField] private Weapon_Controller[] weapons;
+    public void Init(Action footStepAction, ISkillOwner skillOwner, List<string> enemeyTagList)
     {
         this.foorStepAction = footStepAction;
+        this.skillOwner = skillOwner;
+        foreach (var weapon in weapons)
+        {
+            weapon.Init(enemeyTagList, skillOwner.OnHit);
+        }
     }
 
     #region 根运动
@@ -41,6 +49,23 @@ public class Player_Model : MonoBehaviour
     private void FootStep()
     {
         foorStepAction?.Invoke();
+    }
+
+    private void StartSkillHit(int weaponIndex)
+    {
+        skillOwner.StartSkillHit(weaponIndex);
+        weapons[weaponIndex].StartSkillHit();
+    }
+
+    private void StopSkillHit(int weaponIndex)
+    { 
+        skillOwner.StopSkillHit(weaponIndex);
+        weapons[weaponIndex].StopSkillHit();
+    }
+
+    private void SkillCanSwitch()
+    {
+        skillOwner.SkillCanSwitch();
     }
     #endregion
 }

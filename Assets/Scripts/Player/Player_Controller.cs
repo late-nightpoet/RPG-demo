@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player_Controller : MonoBehaviour, IStateMachineOwner
+public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
 {
     
     #region Player Settings Variables
@@ -80,6 +80,13 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner
     [SerializeField] private float slowMotionScale = 0.2f;
     private bool slowMotionEnabled = false;
 
+    #region Attack Settings
+
+    public SkillConfig testSkillConfig;
+
+    public List<string> enemeyTagList;
+    #endregion
+
     #endregion
     void Awake()
     {
@@ -118,7 +125,7 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner
         MovementHelper = new PlayerMovementHelper(Ctx);
         stateMachine = new StateMachine();
         stateMachine.Init(this);
-        playerModel.Init(OnFootStep);
+        playerModel.Init(OnFootStep,this, enemeyTagList);
         stateMachine.ChangeState<Player_IdleState>();
     }
 
@@ -193,5 +200,25 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner
     {
         Time.timeScale = scale;
         Time.fixedDeltaTime = 0.02f * scale;
+    }
+
+    public void StartSkillHit(int weaponIndex)
+    {
+        
+    }
+
+    public void StopSkillHit(int weaponIndex)
+    {
+        
+    }
+
+    public void SkillCanSwitch()
+    {
+        
+    }
+
+    public void OnHit(IHurt target, Vector3 hitPostion)
+    {
+        Debug.Log("Hit target: " + ((Component)target).gameObject.name);
     }
 }
