@@ -85,6 +85,8 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
     public SkillConfig testSkillConfig;
 
     public List<string> enemeyTagList;
+
+    public SkillConfig[] standAttackConfig;
     #endregion
 
     #endregion
@@ -187,23 +189,20 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         }
     }
 
-    public void PlayAnimation(string animationName, float fixedTransitionDuration = 0.25f)
-    {
-        playerModel.Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
-    
-    }
+    #region  攻击技能
 
-    private void OnFootStep()
-    {
-        if (footStepAudioClips.Length == 0) return;
-        int index = UnityEngine.Random.Range(0, footStepAudioClips.Length);
-        audioSource.PlayOneShot(footStepAudioClips[index]);
-    }
+    private SkillConfig currentSkillConfig;
 
-    private void ApplyTimeScale(float scale)
+    public void StartAttack(SkillConfig skillConfig)
     {
-        Time.timeScale = scale;
-        Time.fixedDeltaTime = 0.02f * scale;
+        currentSkillConfig = skillConfig;
+        PlayAnimation(currentSkillConfig.AnimationName);
+
+        SpawnSkillObject(skillConfig.ReleaseData.SpawnObj);
+        if(currentSkillConfig.ReleaseData.AudioClip != null)
+        {
+            PlayAudio(currentSkillConfig.ReleaseData.AudioClip);
+        }
     }
 
     public void StartSkillHit(int weaponIndex)
@@ -221,6 +220,54 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         
     }
 
+    private void SpawnSkillObject(Skill_SpawnObj spawnObj)
+    {
+        if(spawnObj != null && spawnObj.Prefab != null)
+        {
+            StartCoroutine(DoSpawnObject(spawnObj));
+        }
+        
+    }
+
+    private IEnumerator DoSpawnObject(Skill_SpawnObj spawnObj)
+    {
+        //先执行延迟事件
+        yield return new WaitForSeconds(spawnObj.Time);
+        //之所以不设置为相对父物体是因为父物体是Player,而旋转时旋转的是Player旗下的模型，而player本身并不会旋转
+        GameObject skillObj = GameObject.Instantiate(spawnObj.Prefab, null);
+        //设置相对于技能释放者所在的位置以及旋转
+        skillObj.transform.position = Model.transform.position + spawnObj.Position;
+        skillObj.transform.eulerAngles = Model.transform.eulerAngles + spawnObj.Rotation;
+        PlayAudio(spawnObj.AudioClip);
+    }
+
+    #endregion
+
+    public void PlayAnimation(string animationName, float fixedTransitionDuration = 0.25f)
+    {
+        playerModel.Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
+    
+    }
+
+    public void PlayAudio(AudioClip audioClip)
+    {
+        audioSource.PlayOneShot(audioClip);
+    }
+
+    private void OnFootStep()
+    {
+        if (footStepAudioClips.Length == 0) return;
+        int index = UnityEngine.Random.Range(0, footStepAudioClips.Length);
+        audioSource.PlayOneShot(footStepAudioClips[index]);
+    }
+
+    private void ApplyTimeScale(float scale)
+    {
+        Time.timeScale = scale;
+        Time.fixedDeltaTime = 0.02f * scale;
+    }
+
+    
     public void OnHit(IHurt target, Vector3 hitPostion)
     {
         Debug.Log("Hit target: " + ((Component)target).gameObject.name);

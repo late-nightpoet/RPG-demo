@@ -110,5 +110,6 @@ crashlytics-build.properties
 /Temp
 /Logs
 Assets/Free medieval weapons/
-
+/Assets/NamuFX
+/Assets/MeleeWeaponTrail
  

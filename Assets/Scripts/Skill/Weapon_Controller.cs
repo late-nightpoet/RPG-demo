@@ -6,6 +6,7 @@ using UnityEngine;
 public class Weapon_Controller : MonoBehaviour
 {
     [SerializeField] private new Collider collider;
+    [SerializeField] MeleeWeaponTrail meleeWeaponTrail;
 
     private List<string> enemeyTagList;
     private List<IHurt> enemyList = new List<IHurt>();
@@ -17,12 +18,14 @@ public class Weapon_Controller : MonoBehaviour
         collider.enabled = false;
         this.enemeyTagList = enemeyTagList;
         this.onHitAction = onHitAction;
+        meleeWeaponTrail.Emit = false;
     }
 
     public void StartSkillHit()
     {
         Debug.Log("Weapon Skill Hit Started");
         collider.enabled = true;
+        meleeWeaponTrail.Emit = true;
     }
 
     public void StopSkillHit()
@@ -30,6 +33,7 @@ public class Weapon_Controller : MonoBehaviour
         Debug.Log("Weapon Skill Hit Stopped");
         collider.enabled = false;
         enemyList.Clear();
+        meleeWeaponTrail.Emit = false;
     }
 
     private void OnTriggerStay(Collider other)

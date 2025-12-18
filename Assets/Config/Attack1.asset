@@ -13,3 +13,11 @@ MonoBehaviour:
   m_Name: Attack1
   m_EditorClassIdentifier: 
   AnimationName: StandAttack
+  ReleaseData:
+    SpawnObj:
+      Prefab: {fileID: 2752753764864049975, guid: baf8bdef4139d2d49be4e9e207ee342e, type: 3}
+      AudioClip: {fileID: 8300000, guid: 13b2cf5e5618d19428533f8c2697cf40, type: 3}
+      Position: {x: 1, y: 1, z: 1}
+      Rotation: {x: 0, y: 0, z: 0}
+      Time: 1
+    AudioClip: {fileID: 8300000, guid: 73552316b142dd147bcd1884fa6cd2f2, type: 3}

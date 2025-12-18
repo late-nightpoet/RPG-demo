@@ -20,7 +20,8 @@ public class Player_StandAttackState : PlayerStateBase
 
     private void StandAttack()
     {
-        player.PlayAnimation(player.testSkillConfig.AnimationName);
+        //todo 实现连续普攻
+        player.StartAttack(player.standAttackConfig[0]);
     }
 
     public override void Exit()
