@@ -10,5 +10,7 @@ public enum PlayerState
     Fall,
     crouching,
     Land,
-    DodgeRoll
+    DodgeRoll,
+
+    StandAttack
 }

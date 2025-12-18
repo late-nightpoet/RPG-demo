@@ -26,7 +26,12 @@ public class Player_LocomotionState : PlayerStateBase
         player.MovementHelper.CalculateInput();
         player.MovementHelper.GroundedCheck();
        
-
+        if(Input.GetKeyDown(KeyCode.G))
+        {
+            Debug.Log("Exiting Idle State due to G key press");
+            player.ChangeState(PlayerState.StandAttack);
+            return;
+        }
         if (player.Ctx.isJumping)
         {
             player.ChangeState(PlayerState.Jump);

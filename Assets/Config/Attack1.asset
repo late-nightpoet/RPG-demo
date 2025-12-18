@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df3e29c39afadc243a1162b39b00c80d, type: 3}
   m_Name: Attack1
   m_EditorClassIdentifier: 
-  AnimationName: 
+  AnimationName: StandAttack

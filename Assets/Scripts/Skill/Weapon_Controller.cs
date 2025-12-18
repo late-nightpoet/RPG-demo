@@ -21,17 +21,21 @@ public class Weapon_Controller : MonoBehaviour
 
     public void StartSkillHit()
     {
+        Debug.Log("Weapon Skill Hit Started");
         collider.enabled = true;
     }
 
     public void StopSkillHit()
     {
+        Debug.Log("Weapon Skill Hit Stopped");
         collider.enabled = false;
         enemyList.Clear();
     }
 
     private void OnTriggerStay(Collider other)
     {
+        Debug.Log("Weapon Trigger Stay with: " + other.name);
+        Debug.Log("enemyTagList contains: " + string.Join(", ", enemeyTagList));
         if(enemeyTagList.Contains(other.tag))
         {
             IHurt enemy = other.GetComponentInParent<IHurt>();

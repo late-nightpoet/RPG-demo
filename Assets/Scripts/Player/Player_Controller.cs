@@ -180,6 +180,10 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
                 Debug.Log("Change to Roll State");
                 stateMachine.ChangeState<Player_DodgeRollState>();
                 break;
+            case PlayerState.StandAttack:
+                Debug.Log("Change to StandAttack State");
+                stateMachine.ChangeState<Player_StandAttackState>();
+                break;
         }
     }
 

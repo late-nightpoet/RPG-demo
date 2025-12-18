@@ -25,6 +25,12 @@ public class Player_IdleState : PlayerStateBase
             if (player.Ctx.speed2D <= 0.01f)
                 player.Ctx.isStopped = false;
         }
+        if(Input.GetKeyDown(KeyCode.G))
+        {
+            Debug.Log("Exiting Idle State due to G key press");
+            player.ChangeState(PlayerState.StandAttack);
+            return;
+        }
          if (player.Ctx.isJumping)
         {
             Debug.Log("Exiting Idle State due to jump input");

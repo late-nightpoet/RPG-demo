@@ -46,23 +46,29 @@ public class Player_Model : MonoBehaviour
     #region 动画事件
     private Action foorStepAction;
 
+    // AnimationEvent: called from footstep frames
     private void FootStep()
     {
         foorStepAction?.Invoke();
     }
 
+    // AnimationEvent: enable weapon hitbox for the given weapon index
     private void StartSkillHit(int weaponIndex)
     {
+        Debug.Log("Starting Skill Hit for weapon index: " + weaponIndex);
         skillOwner.StartSkillHit(weaponIndex);
         weapons[weaponIndex].StartSkillHit();
     }
 
+    // AnimationEvent: disable weapon hitbox for the given weapon index
     private void StopSkillHit(int weaponIndex)
     { 
+        Debug.Log("Stopping Skill Hit for weapon index: " + weaponIndex);
         skillOwner.StopSkillHit(weaponIndex);
         weapons[weaponIndex].StopSkillHit();
     }
 
+    // AnimationEvent: notify skill can be switched
     private void SkillCanSwitch()
     {
         skillOwner.SkillCanSwitch();
