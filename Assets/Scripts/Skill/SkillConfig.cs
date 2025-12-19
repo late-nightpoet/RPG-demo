@@ -46,11 +46,39 @@ public class Skill_SpawnObj
     //延迟生成物体的时间
     public float Time;
 }
+
+
+/// <summary>
+/// 多段攻击中的一个攻击单位
+/// </summary>
 [Serializable]
 public class Skill_AttackData
 {
+    //播放粒子/产生的游戏物体，例如攻击时播放的刀光
     public Skill_SpawnObj SpawnObj;
 
     //攻击音效
     public AudioClip  AudioClip;
+
+    //命中数据
+    //伤害值
+    public float DamgeValue;
+
+    //硬直时间
+    public float HardTime;
+
+    //击退、击飞的距离方向
+    public Vector3 RepelVelocity;
+
+    //击退、击飞的过渡时间长度
+    public float RepelTime;
+
+    //屏幕震动效果值
+    public float ScreenImpulseValue;
+
+    //色差效果值
+    public float ChromaticAberrationValue;
+
+    //命中效果
+    public SkillHitEFConfig SkillHitEFConfig;
 }

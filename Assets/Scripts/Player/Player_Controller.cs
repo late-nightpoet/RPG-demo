@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
@@ -134,19 +135,13 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         stateMachine.ChangeState<Player_IdleState>();
     }
 
-    public float TestValue;
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.T))
         {
             slowMotionEnabled = !slowMotionEnabled;
             ApplyTimeScale(slowMotionEnabled ? slowMotionScale : 1f);
-        }
-
-        if(Input.GetMouseButtonDown(0))
-        {
-            PostProcessManager.Instance.ChromaticAberrationEF(TestValue);
-            ScreenImpulse(TestValue);
         }
     }
 
@@ -251,6 +246,30 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         PlayAudio(spawnObj.AudioClip);
     }
 
+    public void OnHit(IHurt target, Vector3 hitPostion)
+    {
+        Skill_AttackData attackData = currentSkillConfig.AttackData[currentHitIndex];
+        StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig, hitPostion));
+        if(attackData.ScreenImpulseValue != 0) ScreenImpulse(attackData.ScreenImpulseValue);
+        if(attackData.ChromaticAberrationValue != 0) PostProcessManager.Instance.ChromaticAberrationEF(attackData.ChromaticAberrationValue);
+    }
+
+    private IEnumerator DoSkillHitEF(SkillHitEFConfig hitEFConfig, Vector3 spawnPoint)
+    {
+        if(hitEFConfig == null) yield break;
+        PlayAudio(hitEFConfig.AudioClip);
+        if(hitEFConfig.SpawnObject != null && hitEFConfig.SpawnObject.Prefab != null)
+        {
+            yield return new WaitForSeconds(hitEFConfig.SpawnObject.Time);
+            GameObject temp = Instantiate(hitEFConfig.SpawnObject.Prefab);
+            temp.transform.position = spawnPoint + hitEFConfig.SpawnObject.Position;
+            //一般情况下，效果需要朝向镜头显示
+            temp.transform.LookAt(Camera.main.transform);
+            temp.transform.eulerAngles += hitEFConfig.SpawnObject.Rotation;
+            PlayAudio(hitEFConfig.SpawnObject.AudioClip);
+        }
+    }
+
     #endregion
 
     public void PlayAnimation(string animationName, float fixedTransitionDuration = 0.25f)
@@ -282,8 +301,5 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
     }
 
     
-    public void OnHit(IHurt target, Vector3 hitPostion)
-    {
-        Debug.Log("Hit target: " + ((Component)target).gameObject.name);
-    }
+  
 }
