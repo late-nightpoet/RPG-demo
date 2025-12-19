@@ -34,7 +34,7 @@ public class Player_StandAttackState : PlayerStateBase
         player.MovementHelper.CalculateInput();
         player.MovementHelper.GroundedCheck();
         player.MovementHelper.ApplyGravity();
-        if (CheckAnimatorStateName(player.testSkillConfig.AnimationName, out float aniamtionTime) && aniamtionTime>=1)
+        if (CheckAnimatorStateName(player.standAttackConfig[0].AnimationName, out float aniamtionTime) && aniamtionTime>=1)
         {
             // 回到待机
             player.ChangeState(PlayerState.Idle);

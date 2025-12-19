@@ -55,7 +55,6 @@ public class Player_Model : MonoBehaviour
     // AnimationEvent: enable weapon hitbox for the given weapon index
     private void StartSkillHit(int weaponIndex)
     {
-        Debug.Log("Starting Skill Hit for weapon index: " + weaponIndex);
         skillOwner.StartSkillHit(weaponIndex);
         weapons[weaponIndex].StartSkillHit();
     }
@@ -63,7 +62,6 @@ public class Player_Model : MonoBehaviour
     // AnimationEvent: disable weapon hitbox for the given weapon index
     private void StopSkillHit(int weaponIndex)
     { 
-        Debug.Log("Stopping Skill Hit for weapon index: " + weaponIndex);
         skillOwner.StopSkillHit(weaponIndex);
         weapons[weaponIndex].StopSkillHit();
     }

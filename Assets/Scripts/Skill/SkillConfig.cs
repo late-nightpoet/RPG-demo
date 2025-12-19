@@ -43,6 +43,9 @@ public class Skill_SpawnObj
     //生成物体的偏移位置
     public Vector3 Rotation;
 
+    //缩放
+    public Vector3 Scale = Vector3.one;
+
     //延迟生成物体的时间
     public float Time;
 }

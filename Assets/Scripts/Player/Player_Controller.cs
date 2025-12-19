@@ -86,8 +86,6 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
 
     #region Attack Settings
 
-    public SkillConfig testSkillConfig;
-
     public List<string> enemeyTagList;
 
     public SkillConfig[] standAttackConfig;
@@ -242,6 +240,7 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         GameObject skillObj = GameObject.Instantiate(spawnObj.Prefab, null);
         //设置相对于技能释放者所在的位置以及旋转
         skillObj.transform.position = Model.transform.position + spawnObj.Position;
+        skillObj.transform.localScale = spawnObj.Scale;
         skillObj.transform.eulerAngles = Model.transform.eulerAngles + spawnObj.Rotation;
         PlayAudio(spawnObj.AudioClip);
     }
@@ -293,6 +292,7 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
             //一般情况下，效果需要朝向镜头显示
             temp.transform.LookAt(Camera.main.transform);
             temp.transform.eulerAngles += hitEFConfig.SpawnObject.Rotation;
+            temp.transform.localScale += hitEFConfig.SpawnObject.Scale;
             PlayAudio(hitEFConfig.SpawnObject.AudioClip);
         }
     }
