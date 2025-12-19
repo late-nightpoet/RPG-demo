@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
 
 public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
@@ -25,6 +26,8 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
     public Player_Model Model { get { return playerModel; } }
 
     public CharacterController CharacterController { get { return characterController; } }
+
+    [SerializeField] private CinemachineImpulseSource impulseSource;
 
     #endregion
 
@@ -131,12 +134,19 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         stateMachine.ChangeState<Player_IdleState>();
     }
 
+    public float TestValue;
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.T))
         {
             slowMotionEnabled = !slowMotionEnabled;
             ApplyTimeScale(slowMotionEnabled ? slowMotionScale : 1f);
+        }
+
+        if(Input.GetMouseButtonDown(0))
+        {
+            PostProcessManager.Instance.ChromaticAberrationEF(TestValue);
+            ScreenImpulse(TestValue);
         }
     }
 
@@ -254,6 +264,10 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         if(audioClip != null)audioSource.PlayOneShot(audioClip);
     }
 
+    public void ScreenImpulse(float force)
+    {
+        impulseSource.GenerateImpulse(force * 2);
+    }
     private void OnFootStep()
     {
         if (footStepAudioClips.Length == 0) return;
