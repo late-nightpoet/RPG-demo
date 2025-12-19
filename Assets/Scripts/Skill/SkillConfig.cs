@@ -79,6 +79,12 @@ public class Skill_AttackData
     //色差效果值
     public float ChromaticAberrationValue;
 
+    //卡肉效果-通过冻结帧实现
+    public float FreezeFrameTime;
+
+    //时停，也可以通过时停来实现卡肉效果
+    public float FreezeGameTime;
+
     //命中效果
     public SkillHitEFConfig SkillHitEFConfig;
 }

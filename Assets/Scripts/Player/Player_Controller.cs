@@ -252,6 +252,33 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig, hitPostion));
         if(attackData.ScreenImpulseValue != 0) ScreenImpulse(attackData.ScreenImpulseValue);
         if(attackData.ChromaticAberrationValue != 0) PostProcessManager.Instance.ChromaticAberrationEF(attackData.ChromaticAberrationValue);
+        StartFreezeFrame(attackData.FreezeFrameTime);
+        StartFreezeTime(attackData.FreezeGameTime);
+        //TODO 传递伤害数据
+    }
+
+    private void StartFreezeFrame(float time)
+    {
+        if(time > 0) StartCoroutine(DoFreezeFrame(time));
+    }
+    private IEnumerator DoFreezeFrame(float time)
+    {
+        Model.Animator.speed = 0;
+        yield return new WaitForSeconds(time);
+        Model.Animator.speed = 1;
+    }
+
+    private void StartFreezeTime(float time)
+    {
+        if(time > 0) StartCoroutine(DoFreezeTime(time));
+    }
+
+    private IEnumerator DoFreezeTime(float time)
+    {
+        Time.timeScale = 0;
+        //防止timescale时停影响，需要使用真实的时间
+        yield return new WaitForSecondsRealtime(time);
+        Time.timeScale = 1;
     }
 
     private IEnumerator DoSkillHitEF(SkillHitEFConfig hitEFConfig, Vector3 spawnPoint)
