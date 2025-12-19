@@ -8,6 +8,8 @@ public class SkillConfig : ScriptableObject
     public string AnimationName;
 
     public Skill_ReleaseData ReleaseData;
+
+    public Skill_AttackData[] AttackData;
 }
 
 
@@ -43,4 +45,12 @@ public class Skill_SpawnObj
 
     //延迟生成物体的时间
     public float Time;
+}
+[Serializable]
+public class Skill_AttackData
+{
+    public Skill_SpawnObj SpawnObj;
+
+    //攻击音效
+    public AudioClip  AudioClip;
 }

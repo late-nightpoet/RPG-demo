@@ -192,27 +192,27 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
     #region  攻击技能
 
     private SkillConfig currentSkillConfig;
+    private int currentHitIndex = 0;
 
     public void StartAttack(SkillConfig skillConfig)
     {
         currentSkillConfig = skillConfig;
+        currentHitIndex = 0;
         PlayAnimation(currentSkillConfig.AnimationName);
 
         SpawnSkillObject(skillConfig.ReleaseData.SpawnObj);
-        if(currentSkillConfig.ReleaseData.AudioClip != null)
-        {
-            PlayAudio(currentSkillConfig.ReleaseData.AudioClip);
-        }
+        PlayAudio(currentSkillConfig.ReleaseData.AudioClip);
     }
 
     public void StartSkillHit(int weaponIndex)
     {
-        
+        SpawnSkillObject(currentSkillConfig.AttackData[currentHitIndex].SpawnObj);
+        PlayAudio(currentSkillConfig.AttackData[currentHitIndex].AudioClip);
     }
 
     public void StopSkillHit(int weaponIndex)
     {
-        
+        currentHitIndex += 1;
     }
 
     public void SkillCanSwitch()
@@ -251,7 +251,7 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
 
     public void PlayAudio(AudioClip audioClip)
     {
-        audioSource.PlayOneShot(audioClip);
+        if(audioClip != null)audioSource.PlayOneShot(audioClip);
     }
 
     private void OnFootStep()
