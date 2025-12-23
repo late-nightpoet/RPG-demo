@@ -38,8 +38,6 @@ public class Weapon_Controller : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        Debug.Log("Weapon Trigger Stay with: " + other.name);
-        Debug.Log("enemyTagList contains: " + string.Join(", ", enemeyTagList));
         if(enemeyTagList.Contains(other.tag))
         {
             IHurt enemy = other.GetComponentInParent<IHurt>();
@@ -47,6 +45,7 @@ public class Weapon_Controller : MonoBehaviour
             if(enemy != null && !enemyList.Contains(enemy))
             {
                 Debug.Log("Enemy Hit!");
+                Debug.Log("ontriggerstay collider is " + collider.name);
                 onHitAction?.Invoke(enemy, other.ClosestPoint(transform.position));
                 enemyList.Add(enemy);
             }

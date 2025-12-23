@@ -24,6 +24,14 @@ public class Player_StandAttackState : PlayerStateBase
 
     public override void Enter()
     {
+           player.Model.SetRootMotionAction((deltaPos, deltaRot) =>
+        {
+            // 叠加重力，避免悬空
+            deltaPos.y += player.Ctx.velocity.y * Time.deltaTime;
+
+            player.CharacterController.Move(deltaPos);
+            player.transform.rotation *= deltaRot;
+        });
         CacheAndDisableUpperBodyLayers();
        
         // 播放技能
@@ -39,6 +47,7 @@ public class Player_StandAttackState : PlayerStateBase
 
     public override void Exit()
     {
+        player.Model.ClearRootMotionAction();
         RestoreUpperBodyLayers();
         player.OnSkillOver();
     }
@@ -55,7 +64,6 @@ public class Player_StandAttackState : PlayerStateBase
         }
         if (CheckAnimatorStateName(player.standAttackConfigs[CurrentAttackIndex].AnimationName, out float aniamtionTime) && aniamtionTime>=1)
         {
-            Debug.Log("aniamtionTime IS " + aniamtionTime);
             // 回到待机
             player.ChangeState(PlayerState.Idle);
             return;

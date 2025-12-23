@@ -287,10 +287,12 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
 
     private IEnumerator DoSkillHitEF(SkillHitEFConfig hitEFConfig, Vector3 spawnPoint)
     {
+        Debug.Log("DoSkillHitEF");
         if(hitEFConfig == null) yield break;
         PlayAudio(hitEFConfig.AudioClip);
         if(hitEFConfig.SpawnObject != null && hitEFConfig.SpawnObject.Prefab != null)
         {
+            Debug.Log("DoSkillHitEF hitEFConfig.SpawnObject");
             yield return new WaitForSeconds(hitEFConfig.SpawnObject.Time);
             GameObject temp = Instantiate(hitEFConfig.SpawnObject.Prefab);
             temp.transform.position = spawnPoint + hitEFConfig.SpawnObject.Position;
