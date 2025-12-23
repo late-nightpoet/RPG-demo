@@ -4,6 +4,18 @@ using UnityEngine;
 
 public class Player_StandAttackState : PlayerStateBase
 {
+    //当前处于第几次攻击
+    private int currentAttackIndex;
+
+    private int CurrentAttackIndex
+    {
+        get => currentAttackIndex;
+        set
+        {
+            if(value >= player.standAttackConfigs.Length) currentAttackIndex = 0;
+            else currentAttackIndex = value;
+        }
+    }
     private const int ARM_LAYER_INDEX = 1;
     private const int HAND_LAYER_INDEX = 2;
 
@@ -21,12 +33,14 @@ public class Player_StandAttackState : PlayerStateBase
     private void StandAttack()
     {
         //todo 实现连续普攻
-        player.StartAttack(player.standAttackConfig[0]);
+        Debug.Log("CurrentAttackIndex is " + CurrentAttackIndex);
+        player.StartAttack(player.standAttackConfigs[CurrentAttackIndex]);
     }
 
     public override void Exit()
     {
         RestoreUpperBodyLayers();
+        player.OnSkillOver();
     }
 
     public override void Update()
@@ -34,11 +48,24 @@ public class Player_StandAttackState : PlayerStateBase
         player.MovementHelper.CalculateInput();
         player.MovementHelper.GroundedCheck();
         player.MovementHelper.ApplyGravity();
-        if (CheckAnimatorStateName(player.standAttackConfig[0].AnimationName, out float aniamtionTime) && aniamtionTime>=1)
+         if(CheckStandAttack())
         {
+            CurrentAttackIndex += 1; // 只在确认连击时递增
+            StandAttack();
+        }
+        if (CheckAnimatorStateName(player.standAttackConfigs[CurrentAttackIndex].AnimationName, out float aniamtionTime) && aniamtionTime>=1)
+        {
+            Debug.Log("aniamtionTime IS " + aniamtionTime);
             // 回到待机
             player.ChangeState(PlayerState.Idle);
+            return;
         }
+       
+    }
+
+    public bool CheckStandAttack()
+    {
+        return Input.GetKeyDown(KeyCode.G) && player.CanSwitchSkill;
     }
 
     private void CacheAndDisableUpperBodyLayers()

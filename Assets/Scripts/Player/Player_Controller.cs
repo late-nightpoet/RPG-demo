@@ -88,7 +88,7 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
 
     public List<string> enemeyTagList;
 
-    public SkillConfig[] standAttackConfig;
+    public SkillConfig[] standAttackConfigs;
     #endregion
 
     #endregion
@@ -196,9 +196,14 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
 
     private SkillConfig currentSkillConfig;
     private int currentHitIndex = 0;
+    //切换技能，主要用于判定前摇和后摇
+    private bool canSwitchSkill;
+
+    public bool CanSwitchSkill{ get=> canSwitchSkill;}
 
     public void StartAttack(SkillConfig skillConfig)
     {
+        canSwitchSkill = false; //防止玩家立刻播放下一个技能
         currentSkillConfig = skillConfig;
         currentHitIndex = 0;
         PlayAnimation(currentSkillConfig.AnimationName);
@@ -220,7 +225,7 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
 
     public void SkillCanSwitch()
     {
-        
+        canSwitchSkill = true;
     }
 
     private void SpawnSkillObject(Skill_SpawnObj spawnObj)
@@ -295,6 +300,11 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
             temp.transform.localScale += hitEFConfig.SpawnObject.Scale;
             PlayAudio(hitEFConfig.SpawnObject.AudioClip);
         }
+    }
+
+    public void OnSkillOver()
+    {
+        canSwitchSkill = true;
     }
 
     #endregion
