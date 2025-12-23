@@ -244,7 +244,8 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         //之所以不设置为相对父物体是因为父物体是Player,而旋转时旋转的是Player旗下的模型，而player本身并不会旋转
         GameObject skillObj = GameObject.Instantiate(spawnObj.Prefab, null);
         //设置相对于技能释放者所在的位置以及旋转
-        skillObj.transform.position = Model.transform.position + spawnObj.Position;
+        //需要加上相对局部的坐标，免得角色转向，但是特效依旧在原本的方向生成
+        skillObj.transform.position = Model.transform.position + Model.transform.TransformDirection(spawnObj.Position);
         skillObj.transform.localScale = spawnObj.Scale;
         skillObj.transform.eulerAngles = Model.transform.eulerAngles + spawnObj.Rotation;
         PlayAudio(spawnObj.AudioClip);

@@ -24,6 +24,7 @@ public class Player_StandAttackState : PlayerStateBase
 
     public override void Enter()
     {
+        CurrentAttackIndex = 0;
            player.Model.SetRootMotionAction((deltaPos, deltaRot) =>
         {
             // 叠加重力，避免悬空
@@ -59,6 +60,7 @@ public class Player_StandAttackState : PlayerStateBase
         player.MovementHelper.ApplyGravity();
          if(CheckStandAttack())
         {
+            Debug.Log("CurrentAttackIndex += 1;");
             CurrentAttackIndex += 1; // 只在确认连击时递增
             StandAttack();
         }
