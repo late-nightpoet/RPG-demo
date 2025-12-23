@@ -58,6 +58,22 @@ public class Player_StandAttackState : PlayerStateBase
         player.MovementHelper.CalculateInput();
         player.MovementHelper.GroundedCheck();
         player.MovementHelper.ApplyGravity();
+
+        // 仅在后摇窗口允许取消
+        if (player.CanSwitchSkill)
+        {
+            if (player.Ctx.isJumping)
+            {
+                player.ChangeState(PlayerState.Jump);
+                return;
+            }
+            if (player.Ctx.rollRequested && player.Ctx.isGrounded)
+            {
+                player.Ctx.rollRequested = false;
+                player.ChangeState(PlayerState.DodgeRoll);
+                return;
+            }
+        }
          if(CheckStandAttack())
         {
             Debug.Log("CurrentAttackIndex += 1;");
