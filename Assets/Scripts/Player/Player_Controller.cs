@@ -200,6 +200,7 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
     private bool canSwitchSkill;
 
     public bool CanSwitchSkill{ get=> canSwitchSkill;}
+    public SkillConfig CurrentSkillConfig{ get=> currentSkillConfig;}
 
     public void StartAttack(SkillConfig skillConfig)
     {

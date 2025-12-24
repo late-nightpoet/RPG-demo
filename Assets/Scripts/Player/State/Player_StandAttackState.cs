@@ -86,6 +86,11 @@ public class Player_StandAttackState : PlayerStateBase
             player.ChangeState(PlayerState.Idle);
             return;
         }
+
+        if (player.CurrentSkillConfig.ReleaseData.CanRotate)
+        {
+            player.MovementHelper.RotateDuringAttack(true);
+        }
        
     }
 

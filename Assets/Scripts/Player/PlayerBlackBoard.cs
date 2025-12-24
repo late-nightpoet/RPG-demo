@@ -62,6 +62,10 @@ public sealed class PlayerBlackBoard
     public float groundedOffset = -0.14f;
     #endregion
 
+    #region attack setting
+    public float rotateSpeedForAttack = 4;
+    #endregion
+
     #endregion
 
     //共享给所有状态机状态使用的变量

@@ -23,6 +23,9 @@ public class Skill_ReleaseData
 
     //技能释放时的音效，与产生物体时的音效不同
     public AudioClip AudioClip;
+
+    // 技能运行时是否可以旋转
+    public bool CanRotate;
 }
 
 /// <summary>

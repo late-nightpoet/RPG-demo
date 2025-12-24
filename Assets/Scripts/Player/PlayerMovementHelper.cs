@@ -353,6 +353,20 @@ public sealed class PlayerMovementHelper
         return (cameraForward * rawInput.y) + (cameraRight * rawInput.x);
     }
 
+    public void RotateDuringAttack(bool canRotate)
+    {
+        if (!canRotate) return;
+
+        Vector3 desiredDirection = GetRawWorldDirection();
+        if (desiredDirection.sqrMagnitude < 0.0001f)
+        {
+            return;
+        }
+
+        Quaternion targetRotation = Quaternion.LookRotation(desiredDirection);
+        ctx.transform.rotation = Quaternion.Slerp(ctx.transform.rotation, targetRotation, ctx.rotateSpeedForAttack * Time.deltaTime);
+    }
+
     // 新：对外释放接口，供外部（比如 Player_Controller）在 OnDisable/OnDestroy 调用
     public void Dispose()
     {
