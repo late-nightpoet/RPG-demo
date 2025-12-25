@@ -15,7 +15,8 @@ public class Weapon_Controller : MonoBehaviour
 
     public void Init(List<string> enemeyTagList, Action<IHurt, Vector3> onHitAction)
     {
-        collider.enabled = false;
+        //要让武器在一般情况下是collider，不会穿模，在攻击时是trigger会穿模
+        collider.isTrigger = false;
         this.enemeyTagList = enemeyTagList;
         this.onHitAction = onHitAction;
         meleeWeaponTrail.Emit = false;
@@ -23,21 +24,21 @@ public class Weapon_Controller : MonoBehaviour
 
     public void StartSkillHit()
     {
-        Debug.Log("Weapon Skill Hit Started");
-        collider.enabled = true;
+        collider.isTrigger = true;
         meleeWeaponTrail.Emit = true;
     }
 
     public void StopSkillHit()
     {
-        Debug.Log("Weapon Skill Hit Stopped");
-        collider.enabled = false;
+        collider.isTrigger = false;
         enemyList.Clear();
         meleeWeaponTrail.Emit = false;
     }
 
     private void OnTriggerStay(Collider other)
     {
+        //敌人或者玩家之间任意有一个是触发器，就会进入该方法
+        if(enemeyTagList == null) return;
         if(enemeyTagList.Contains(other.tag))
         {
             IHurt enemy = other.GetComponentInParent<IHurt>();
@@ -45,7 +46,7 @@ public class Weapon_Controller : MonoBehaviour
             if(enemy != null && !enemyList.Contains(enemy))
             {
                 Debug.Log("Enemy Hit!");
-                Debug.Log("ontriggerstay collider is " + collider.name);
+                Debug.Log("ontriggerstay collider is " + other.name);
                 onHitAction?.Invoke(enemy, other.ClosestPoint(transform.position));
                 enemyList.Add(enemy);
             }

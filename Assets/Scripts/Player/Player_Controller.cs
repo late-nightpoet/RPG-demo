@@ -224,6 +224,13 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         currentHitIndex += 1;
     }
 
+    public void OnFootStep()
+    {
+        if (footStepAudioClips.Length == 0) return;
+        int index = UnityEngine.Random.Range(0, footStepAudioClips.Length);
+        audioSource.PlayOneShot(footStepAudioClips[index]);
+    }
+
     public void SkillCanSwitch()
     {
         canSwitchSkill = true;
@@ -254,13 +261,16 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
 
     public void OnHit(IHurt target, Vector3 hitPostion)
     {
+        Debug.Log("this.name is " + this.name);
         Skill_AttackData attackData = currentSkillConfig.AttackData[currentHitIndex];
         StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig, hitPostion));
         if(attackData.ScreenImpulseValue != 0) ScreenImpulse(attackData.ScreenImpulseValue);
         if(attackData.ChromaticAberrationValue != 0) PostProcessManager.Instance.ChromaticAberrationEF(attackData.ChromaticAberrationValue);
         StartFreezeFrame(attackData.FreezeFrameTime);
         StartFreezeTime(attackData.FreezeGameTime);
-        //TODO 传递伤害数据
+        //传递伤害数据
+        //todo 传递更多伤害信息
+        target.Hurt();
     }
 
     private void StartFreezeFrame(float time)
@@ -328,12 +338,7 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
     {
         impulseSource.GenerateImpulse(force * 2);
     }
-    private void OnFootStep()
-    {
-        if (footStepAudioClips.Length == 0) return;
-        int index = UnityEngine.Random.Range(0, footStepAudioClips.Length);
-        audioSource.PlayOneShot(footStepAudioClips[index]);
-    }
+  
 
     private void ApplyTimeScale(float scale)
     {
@@ -341,6 +346,4 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         Time.fixedDeltaTime = 0.02f * scale;
     }
 
-    
-  
 }
