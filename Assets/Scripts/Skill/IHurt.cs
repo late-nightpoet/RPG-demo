@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface IHurt
 {
-    void Hurt();
+    void Hurt(Skill_HitData hitData, ISkillOwner hurtSource);
 }

@@ -9,9 +9,35 @@ public class BOSS_Controller : MonoBehaviour, IHurt, IStateMachineOwner,ISkillOw
     [SerializeField] private Boss_Model boss_Model;
     public Boss_Model Model { get => boss_Model;}
 
+    [SerializeField]private CharacterController characterController;
+
+    public CharacterController CharacterController { get => characterController;}
+
+    public Transform ModelTransform => Model.transform;
+
     private StateMachine stateMachine;
 
     public List<string> enemeyTagList;
+
+    public EnemyBlackBoard Ctx { get; private set; }
+    public EnemyMovementHelper MovementHelper { get; private set; }
+    #region 配置信息
+    public float gravity = -9.8f;
+    #endregion
+
+    private void Awake()
+    {
+        if (characterController == null)
+        {
+            characterController = GetComponent<CharacterController>();
+        }
+
+        Ctx = new EnemyBlackBoard
+        {
+            controller = characterController
+        };
+        MovementHelper = new EnemyMovementHelper(Ctx);
+    }
 
     private void Start()
     {
@@ -33,10 +59,15 @@ public class BOSS_Controller : MonoBehaviour, IHurt, IStateMachineOwner,ISkillOw
                 break;
         }
     }
-    public void Hurt()
+
+    public Skill_HitData hitData {get; private set;}
+    public ISkillOwner hurtSource {get; private set;}
+    public void Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
     {
         //todo boss可能处于霸体或者不可被击倒阶段
         //连击时可以从受伤状态到受伤状态
+        this.hitData = hitData;
+        this.hurtSource = hurtSource;
         ChangeState(BossState.Hurt, true);
     }
 
@@ -91,4 +122,6 @@ public class BOSS_Controller : MonoBehaviour, IHurt, IStateMachineOwner,ISkillOw
     {
         throw new NotImplementedException();
     }
+
+
 }

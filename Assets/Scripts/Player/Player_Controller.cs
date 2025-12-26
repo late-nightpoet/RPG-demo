@@ -26,6 +26,8 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
 
     public Player_Model Model { get { return playerModel; } }
 
+    public Transform ModelTransform => Model.transform;
+
     public CharacterController CharacterController { get { return characterController; } }
 
     [SerializeField] private CinemachineImpulseSource impulseSource;
@@ -84,6 +86,8 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
     [SerializeField] private float slowMotionScale = 0.2f;
     private bool slowMotionEnabled = false;
 
+    private bool pauseGame = false;
+
     #region Attack Settings
 
     public List<string> enemeyTagList;
@@ -111,6 +115,8 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
     }
     private void Start()
     {
+        //锁定鼠标
+        Cursor.lockState = CursorLockMode.Locked;
         //inputReader.onWalkToggled += ToggleWalk;
         //inputReader.onSprintActivated += ActivateSprint;
         //inputReader.onSprintDeactivated += DeactivateSprint;
@@ -140,6 +146,11 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         {
             slowMotionEnabled = !slowMotionEnabled;
             ApplyTimeScale(slowMotionEnabled ? slowMotionScale : 1f);
+        }
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            pauseGame = !pauseGame;
+            ApplyTimeScale(pauseGame ? 0f : 1f);
         }
     }
 
@@ -270,7 +281,7 @@ public class Player_Controller : MonoBehaviour, IStateMachineOwner, ISkillOwner
         StartFreezeTime(attackData.FreezeGameTime);
         //传递伤害数据
         //todo 传递更多伤害信息
-        target.Hurt();
+        target.Hurt(attackData.HitData, this);
     }
 
     private void StartFreezeFrame(float time)
