@@ -151,8 +151,23 @@ public class Boss_HurtState : BossStateBase
                 UpdateMovement(false);
                 if (CheckAnimatorStateName(AnimKnockDownLand, out float landTime) && landTime >= 1f)
                 {
-                    //等到躺地的动作完成之后再起身
-                    StartKnockDownEnd();
+                    // 【逻辑修改】如果有硬直时间，需要等待
+                    if (hitData.HardTime > 0)
+                    {
+                        // 累加等待时间
+                        currHardTime += Time.deltaTime;
+
+                        // 只有等待时间超过了设定的 HardTime，才允许起身
+                        if (currHardTime >= hitData.HardTime)
+                        {
+                            StartKnockDownEnd();
+                        }
+                    }
+                    else
+                    {
+                        // 如果 HardTime 为 0，则维持原有逻辑，动画播完立即起身
+                        StartKnockDownEnd();
+                    }
                 }
                 break;
             case HurtPhase.KnockDownEnd:
@@ -254,6 +269,8 @@ public class Boss_HurtState : BossStateBase
 
     private void StartKnockDownLand()
     {
+       // 【新增】重置计时器，确保从0开始计算躺地等待时间
+        currHardTime = 0f;
         phase = HurtPhase.KnockDownLand;
         boss.PlayAnimation(AnimKnockDownLand);
     }
