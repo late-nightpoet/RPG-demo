@@ -19,7 +19,9 @@ public class Boss_HurtState : BossStateBase
     private const string AnimAirLoop = "KnockAirLoop";
     private const string AnimKnockDownLand = "KnockDownLand";
     private const string AnimKnockDownEnd = "KnockDownEnd";
-    private const float MinRepelTime = 0.0001f;
+
+    //minrepel最短要是0.2f，是knockup动画的时间长度，不然如果repeltime默认没有被设置的话knockup状态会被跳过然后直接进入knockdownland状态
+    private const float MinRepelTime = 0.2f;
     private const float MinRepelSqr = 0.0001f;
 
     private HurtPhase phase;
@@ -71,10 +73,12 @@ public class Boss_HurtState : BossStateBase
         // 【新增】重置停顿标记
         isHitStopFrozen = false;
 
-        bool hasRepel = hitData.RepelTime > 0 &&
-                        hitData.RepelVelocity.sqrMagnitude > MinRepelSqr;
-        //判断一下是要硬直状态还是击飞状态，硬直与击飞不可同时存在
-        if (!hasRepel)
+        // 【修改开始】使用配置中的 IsKnockUp 开关来决定流程
+        // 原逻辑：bool hasRepel = hitData.RepelTime > 0 && hitData.RepelVelocity.sqrMagnitude > MinRepelSqr;
+        
+        bool isKnockUp = hitData.IsKnockUp;
+        // 如果没有勾选击飞，则进入原地受击硬直状态
+        if (!isKnockUp)
         {
             phase = HurtPhase.HitStagger;
             boss.PlayAnimation(AnimHitStagger);
@@ -97,6 +101,7 @@ public class Boss_HurtState : BossStateBase
         }
 
         // 2. 【核心修改】如果是击飞，立即压缩胶囊体！
+        //不压缩胶囊体的话会导致胶囊体在空中还是竖直状态导致模型还在播放动画但是胶囊体过早触碰地面，从而有角色在空中就进入knockdownland的bug
         if (boss.CharacterController != null)
         {
             // 必须先修改 Step Offset！防止因为 Offset 过大导致高度修改被拒绝

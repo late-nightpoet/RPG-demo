@@ -91,7 +91,14 @@ public class Skill_HitData
     //伤害值
     public float DamgeValue;
 
-    //硬直时间
+    // 【新增】是否造成击飞/击倒状态
+    // true -> 走 KnockUp -> AirLoop -> KnockDownLand 流程
+    // false -> 走 HitStagger 流程
+    public bool IsKnockUp;
+
+    //硬直时间 
+    // (如果 IsKnockUp=false，用于 HitStagger 的停顿时间)
+    // (如果 IsKnockUp=true，用于 KnockDownLand 的躺地等待时间)
     public float HardTime;
 
     //击退、击飞的距离方向
