@@ -46,6 +46,14 @@ public class Boss_HurtState : BossStateBase
 
     // 【新增标记】是否处于卡肉停顿中
     private bool isHitStopFrozen = false;
+
+    // 【新增】平滑转向相关变量
+    private Quaternion targetRotation;
+    private bool isRotatingToAttacker = false;
+    
+    // 转向速度：建议设高一点，因为被击飞是一瞬间的事，太慢会像在“驾驶”而不是“受击”
+    // 1500度/秒 意味着大约 0.1~0.2秒能转过身去，既有过程感又足够猛烈
+    private const float TurnSpeed = 1500f;
     public override void Enter()
     {
 
@@ -83,6 +91,30 @@ public class Boss_HurtState : BossStateBase
             phase = HurtPhase.HitStagger;
             boss.PlayAnimation(AnimHitStagger);
             return;
+        }
+
+        // 初始化变量
+        targetRotation = boss.transform.rotation; // 默认目标是当前朝向
+        isRotatingToAttacker = false;
+
+        // 如果是击飞状态 且 存在攻击来源
+        if (isKnockUp && source != null)
+        {
+            // 计算指向攻击者的向量
+            Vector3 dirToAttacker = source.ModelTransform.position - boss.transform.position;
+            dirToAttacker.y = 0; 
+
+            // 如果方向有效，设定目标旋转
+            if (dirToAttacker.sqrMagnitude > 0.001f)
+            {
+                targetRotation = Quaternion.LookRotation(dirToAttacker);
+                
+                // 只有当当前朝向和目标朝向夹角较大时，才启动转向
+                if (Quaternion.Angle(boss.transform.rotation, targetRotation) > 5f)
+                {
+                    isRotatingToAttacker = true;
+                }
+            }
         }
 
         Vector3 repelWorld = hitData.RepelVelocity;
@@ -128,6 +160,7 @@ public class Boss_HurtState : BossStateBase
                 HandleHitStaggerLogic();
                 break;
             case HurtPhase.KnockUp:
+                DoRotateToAttacker();
                 UpdateRepel();
                 //击飞时需要速度*time.delta得到击飞距离获取物理移动距离来播放动画
                 UpdateMovement(true);
@@ -176,6 +209,7 @@ public class Boss_HurtState : BossStateBase
                 }
                 break;
             case HurtPhase.KnockDownEnd:
+               
                 UpdateMovement(false);
                 if (CheckAnimatorStateName(AnimKnockDownEnd, out float endTime) && endTime >= 1f)
                 {
@@ -185,6 +219,26 @@ public class Boss_HurtState : BossStateBase
                 }
                 break;
         }
+    }
+
+    private void DoRotateToAttacker()
+    {
+        // 【新增】平滑转向逻辑
+                if (isRotatingToAttacker)
+                {
+                    // 使用 RotateTowards 进行匀速转动，比 Lerp 更适合这种角度修正
+                    boss.transform.rotation = Quaternion.RotateTowards(
+                        boss.transform.rotation, 
+                        targetRotation, 
+                        TurnSpeed * Time.deltaTime
+                    );
+
+                    // 如果角度极小，就停止计算，节省性能
+                    if (Quaternion.Angle(boss.transform.rotation, targetRotation) < 1f)
+                    {
+                        isRotatingToAttacker = false;
+                    }
+                }
     }
 
     // 【核心逻辑】处理先播放、再停顿、再恢复
