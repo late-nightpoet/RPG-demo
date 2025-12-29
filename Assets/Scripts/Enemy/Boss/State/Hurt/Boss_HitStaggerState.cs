@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class Boss_HitStaggerState : Boss_HurtStateBase
 {
-    protected const string AnimHitStaggerFront = "Hurt_Front";
+    //攻击来自后方，角色向前方倾倒的动画
+    protected const string AnimHitStaggerFront = "HitStagger_Front";
 
-    protected const string AnimHitStaggerBack = "Hurt_Back";
+    protected const string AnimHitStaggerBack = "HitStagger_Back";
 
-    protected const string AnimHitStaggerLeft = "Hurt_Left";
+   
+    protected const string AnimHitStaggerLeft = "HitStagger_Left";
 
-    protected const string AnimHitStaggerRight = "Hurt_Right";
+    //攻击来自角色的左方，角色向右倾倒，即攻击者在角色的左方
+
+    protected const string AnimHitStaggerRight = "HitStagger_Right";
 
     private string currentAnimName = AnimHitStaggerFront;
 
@@ -26,10 +30,30 @@ public class Boss_HitStaggerState : Boss_HurtStateBase
     public override void Enter()
     {
         currHardTime = 0;
-        base.Enter();
         // 【新增】重置停顿标记
         isHitStopFrozen = false;
+        //  判断受击方向，播放对应动画
 
+        // 2. 【关键步骤 A】告诉 Animator：我要用 Root Motion
+        if (boss.Model.Animator != null)
+        {
+            boss.Model.Animator.applyRootMotion = true;
+        }
+
+        // 3. 【关键步骤 B】注册“传输装置”
+        // 也就是告诉 Model：当 Animator 产生位移时，请把这个位移传给 CharacterController
+        boss.Model.SetRootMotionAction((deltaPos, deltaRot) =>
+        {
+            // 你可以选择是否保留 Y 轴位移（如果有跳跃动作则需要保留）
+            // deltaPos.y = 0; 
+            
+            // 驱动角色移动
+            boss.CharacterController.Move(deltaPos);
+            
+            // 驱动角色旋转（如果动画里有旋转）
+            boss.transform.rotation *= deltaRot;
+        });
+        currentAnimName = GetDirectionalAnimation();
         boss.PlayAnimation(currentAnimName);
     }
 
@@ -82,5 +106,46 @@ public class Boss_HitStaggerState : Boss_HurtStateBase
         
         // 处理卡肉逻辑
         HandleHitStaggerLogic();
+    }
+
+    private string GetDirectionalAnimation()
+    {
+        if (source == null) return AnimHitStaggerFront;
+
+        // 获取指向攻击者的向量
+        Vector3 dirToAttacker = (source.ModelTransform.position - boss.transform.position).normalized;
+        // 转换到 Boss 的局部坐标系
+        Vector3 localDir = boss.transform.InverseTransformDirection(dirToAttacker);
+
+        // 判定逻辑：
+        // localDir.z > 0 (前方), < 0 (后方)
+        // localDir.x > 0 (右方), < 0 (左方)
+        // 比较绝对值大小来决定主要是前后还是左右
+
+        if (Mathf.Abs(localDir.z) > Mathf.Abs(localDir.x))
+        {
+            // 前后为主
+            return localDir.z > 0 ? AnimHitStaggerBack : AnimHitStaggerFront;
+        }
+        else
+        {
+            // 左右为主
+            return localDir.x > 0 ? AnimHitStaggerLeft : AnimHitStaggerRight;
+        }
+    }
+
+    public override void Exit()
+    {
+        // 【关键步骤 C】打扫战场
+        // 退出状态时，必须取消注册，否则切到 Idle 状态后，Idle 动画原本只有微小的抖动，
+        // 也会被强行应用到 CharacterController 上，导致角色奇怪地滑步。
+        boss.Model.ClearRootMotionAction();
+        
+        if (boss.Model.Animator != null)
+        {
+            boss.Model.Animator.applyRootMotion = false;
+            boss.Model.Animator.speed = 1f;
+        }
+        
     }
 }

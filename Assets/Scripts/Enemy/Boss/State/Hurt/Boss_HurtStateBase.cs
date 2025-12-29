@@ -30,6 +30,7 @@ public class Boss_HurtStateBase : BossStateBase
         //禁止rootmotion
         boss.Model.ClearRootMotionAction();
 
+        //Animator.applyRootMotion 是一个持久的状态。除非显式修改它，否则它会一直保持上一次设置的值。
         if (boss.Model != null && boss.Model.Animator != null)
         boss.Model.Animator.applyRootMotion = false;
     }
