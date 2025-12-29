@@ -5,5 +5,12 @@ using UnityEngine;
 public enum BossState
 {
     Idle,
-    Hurt
+    Hurt,
+
+    HitStagger,
+    KnockUp,
+    KnockAirLoop,
+    KnockDownLand,
+
+    KnockDownRise,
 }

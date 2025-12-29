@@ -54,8 +54,20 @@ public class BOSS_Controller : MonoBehaviour, IHurt, IStateMachineOwner,ISkillOw
             case BossState.Idle:
                 stateMachine.ChangeState<Boss_IdleState>(reCurrstate);
                 break;
-            case BossState.Hurt:
-                stateMachine.ChangeState<Boss_HurtState>(reCurrstate);
+            case BossState.HitStagger:
+                stateMachine.ChangeState<Boss_HitStaggerState>(reCurrstate);
+                break;
+            case BossState.KnockUp:
+                stateMachine.ChangeState<Boss_KnockUpState>(reCurrstate);
+                break;
+            case BossState.KnockAirLoop:
+                stateMachine.ChangeState<Boss_KnockAirLoopState>(reCurrstate);
+                break;
+            case BossState.KnockDownLand:
+                stateMachine.ChangeState<Boss_KnockDownLandState>(reCurrstate);
+                break;
+            case BossState.KnockDownRise:
+                stateMachine.ChangeState<Boss_KnockDownRiseState>(reCurrstate);
                 break;
         }
     }
@@ -68,7 +80,16 @@ public class BOSS_Controller : MonoBehaviour, IHurt, IStateMachineOwner,ISkillOw
         //连击时可以从受伤状态到受伤状态
         this.hitData = hitData;
         this.hurtSource = hurtSource;
-        ChangeState(BossState.Hurt, true);
+        if (hitData.IsKnockUp)
+        {
+            // 击飞路线
+            ChangeState(BossState.KnockUp, true);
+        }
+        else
+        {
+            // 原地受击路线
+            ChangeState(BossState.HitStagger, true);
+        }
     }
 
     public void PlayAnimation(string animationName, float fixedTransitionDuration = 0.25f)
