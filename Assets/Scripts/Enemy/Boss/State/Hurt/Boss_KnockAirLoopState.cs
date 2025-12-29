@@ -6,7 +6,7 @@ public class Boss_KnockAirLoopState : Boss_HurtStateBase
 {
     public override void Enter()
     {
-      
+        base.Enter();
         boss.PlayAnimation("KnockAirLoop");
     }
 

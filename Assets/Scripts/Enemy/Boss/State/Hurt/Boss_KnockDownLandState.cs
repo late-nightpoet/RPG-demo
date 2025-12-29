@@ -13,6 +13,7 @@ public class Boss_KnockDownLandState : Boss_HurtStateBase
 
     public override void Enter()
     {
+        base.Enter();
         boss.PlayAnimation(AnimKnockDownLand);
         HardTimeTimer = 0;
         animFinished = false;

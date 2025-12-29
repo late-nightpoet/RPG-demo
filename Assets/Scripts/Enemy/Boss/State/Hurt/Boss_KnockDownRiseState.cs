@@ -7,6 +7,7 @@ public class Boss_KnockDownRiseState : Boss_HurtStateBase
     private const string AnimKnockDownRise = "KnockDownEnd";
     public override void Enter()
     {
+        base.Enter();
         boss.PlayAnimation(AnimKnockDownRise);
     }
 
