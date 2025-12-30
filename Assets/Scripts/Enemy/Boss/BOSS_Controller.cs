@@ -54,6 +54,10 @@ public class BOSS_Controller : CharacterBase
             case BossState.KnockDownRise:
                 stateMachine.ChangeState<Boss_KnockDownRiseState>(reCurrstate);
                 break;
+            case BossState.Attack:
+                stateMachine.ChangeState<Boss_AttackState>(reCurrstate);
+                break;
+
         }
     }
 

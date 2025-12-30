@@ -13,4 +13,5 @@ public enum BossState
     KnockDownLand,
 
     KnockDownRise,
+    Attack,
 }

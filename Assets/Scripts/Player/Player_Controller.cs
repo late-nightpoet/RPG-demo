@@ -76,7 +76,7 @@ public class Player_Controller : CharacterBase
 
 
 
-    public SkillConfig[] standAttackConfigs;
+ 
     #endregion
 
     #endregion

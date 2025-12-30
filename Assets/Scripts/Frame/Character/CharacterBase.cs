@@ -19,12 +19,14 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
     public AudioClip[] footStepAudioClips;
 
     public List<string> enemeyTagList;
+    public SkillConfig[] standAttackConfigs;
 
     public virtual void Init()
     {
         stateMachine = new StateMachine();
         stateMachine.Init(this);
         Model.Init(OnFootStep,this, enemeyTagList);
+        canSwitchSkill = true;
     }
 
    
