@@ -5,6 +5,8 @@ using UnityEngine;
 public enum BossState
 {
     Idle,
+    Walk,
+    Run,
     Hurt,
 
     HitStagger,

@@ -2,14 +2,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.XR;
 
 public class BOSS_Controller : CharacterBase
 {
+    public Player_Controller targetPlayer;
+    public NavMeshAgent navMeshAgent;
     public EnemyBlackBoard Ctx { get; private set; }
     public EnemyMovementHelper MovementHelper { get; private set; }
     #region 配置信息
     public float gravity = -9.8f;
+
+    public float walkRange = 5;
+
+    public float walkSpeed;
+
+    public float runSpeed;
     #endregion
 
     private void Awake()
@@ -39,6 +48,12 @@ public class BOSS_Controller : CharacterBase
             case BossState.Idle:
                 stateMachine.ChangeState<Boss_IdleState>(reCurrstate);
                 break;
+            case BossState.Walk:
+                stateMachine.ChangeState<Boss_Walktate>(reCurrstate);
+                break;
+            case BossState.Run:
+                stateMachine.ChangeState<Boss_RunState>(reCurrstate);
+                break;
             case BossState.HitStagger:
                 stateMachine.ChangeState<Boss_HitStaggerState>(reCurrstate);
                 break;
@@ -57,7 +72,6 @@ public class BOSS_Controller : CharacterBase
             case BossState.Attack:
                 stateMachine.ChangeState<Boss_AttackState>(reCurrstate);
                 break;
-
         }
     }
 
