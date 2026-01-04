@@ -151,36 +151,52 @@ public class Player_Controller : CharacterBase
         
     }
 
-    public void ChangeState(PlayerState playerState)
+    public void ChangeState(PlayerState playerState, bool reCurrstate = false)
     {
         switch(playerState)
         {
             case PlayerState.Idle:
-                stateMachine.ChangeState<Player_IdleState>();
+                stateMachine.ChangeState<Player_IdleState>(reCurrstate);
                 break;
             case PlayerState.Locomotion:
                 Debug.Log("Change to Locomotion State");
-                stateMachine.ChangeState<Player_LocomotionState>();
+                stateMachine.ChangeState<Player_LocomotionState>(reCurrstate);
                 break;
             case PlayerState.Fall:
                 Debug.Log("Change to Fall State");
-                stateMachine.ChangeState<Player_FallState>();
+                stateMachine.ChangeState<Player_FallState>(reCurrstate);
                 break;
             case PlayerState.Land:
                 Debug.Log("Change to Land State");
-                stateMachine.ChangeState<Player_LandState>();
+                stateMachine.ChangeState<Player_LandState>(reCurrstate);
                 break;
             case PlayerState.Jump:
                 Debug.Log("Change to Jump State");
-                stateMachine.ChangeState<Player_JumpState>();
+                stateMachine.ChangeState<Player_JumpState>(reCurrstate);
                 break;
             case PlayerState.DodgeRoll:
                 Debug.Log("Change to Roll State");
-                stateMachine.ChangeState<Player_DodgeRollState>();
+                stateMachine.ChangeState<Player_DodgeRollState>(reCurrstate);
                 break;
             case PlayerState.StandAttack:
                 Debug.Log("Change to StandAttack State");
-                stateMachine.ChangeState<Player_StandAttackState>();
+                stateMachine.ChangeState<Player_StandAttackState>(reCurrstate);
+                break;
+            case PlayerState.HitStagger:
+                Debug.Log("player Change to StandAttack State");
+                stateMachine.ChangeState<Player_HitStaggerState>(reCurrstate);
+                break;
+            case PlayerState.KnockUp:
+                stateMachine.ChangeState<Player_KnockUpState>(reCurrstate);
+                break;
+            case PlayerState.KnockAirLoop:
+                stateMachine.ChangeState<Player_KnockAirLoopState>(reCurrstate);
+                break;
+            case PlayerState.KnockDownLand:
+                stateMachine.ChangeState<Player_KnockDownLandState>(reCurrstate);
+                break;
+            case PlayerState.KnockDownRise:
+                stateMachine.ChangeState<Player_KnockDownRiseState>(reCurrstate);
                 break;
         }
     }
@@ -199,6 +215,38 @@ public class Player_Controller : CharacterBase
     {
         Time.timeScale = scale;
         Time.fixedDeltaTime = 0.02f * scale;
+    }
+
+    public override void OnHit(IHurt target, Vector3 hitPostion)
+    {
+        Debug.Log("player 进入hit");
+        // 拿到这一段攻击的数据
+        Skill_AttackData attackData = CurrentSkillConfig.AttackData[currentHitIndex];
+        // 生成基于命中配置的效果
+        StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig, hitPostion));
+        // 播放效果类
+        if (attackData.ScreenImpulseValue != 0) ScreenImpulse(attackData.ScreenImpulseValue);
+        if (attackData.ChromaticAberrationValue != 0) PostProcessManager.Instance.ChromaticAberrationEF(attackData.ChromaticAberrationValue);
+        StartFreezeFrame(attackData.FreezeFrameTime);
+        StartFreezeTime(attackData.FreezeGameTime);
+        // 传递伤害数据
+        target.Hurt(attackData.HitData, this);
+    }
+
+    public override void Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
+    {
+        Debug.Log("进入player的hurt状态");
+        base.Hurt(hitData, hurtSource);
+        if (hitData.IsKnockUp)
+        {
+            // 击飞路线
+            ChangeState(PlayerState.KnockUp, true);
+        }
+        else
+        {
+            // 原地受击路线
+            ChangeState(PlayerState.HitStagger, true);
+        }
     }
 
 }

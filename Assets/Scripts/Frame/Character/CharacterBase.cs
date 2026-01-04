@@ -32,9 +32,10 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
    
 
     #region  攻击技能
-
-    private SkillConfig currentSkillConfig;
-    private int currentHitIndex = 0;
+    public Skill_HitData hitData { get; protected set; }
+    public ISkillOwner hurtSource { get; protected set; }
+    public SkillConfig currentSkillConfig;
+    protected int currentHitIndex = 0;
     //切换技能，主要用于判定前摇和后摇
     private bool canSwitchSkill;
 
@@ -70,7 +71,7 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
         canSwitchSkill = true;
     }
 
-    private void SpawnSkillObject(Skill_SpawnObj spawnObj)
+    public void SpawnSkillObject(Skill_SpawnObj spawnObj)
     {
         if(spawnObj != null && spawnObj.Prefab != null)
         {
@@ -79,7 +80,7 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
         
     }
 
-    private IEnumerator DoSpawnObject(Skill_SpawnObj spawnObj)
+    protected IEnumerator DoSpawnObject(Skill_SpawnObj spawnObj)
     {
         //先执行延迟事件
         yield return new WaitForSeconds(spawnObj.Time);
@@ -93,7 +94,7 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
         PlayAudio(spawnObj.AudioClip);
     }
 
-    public void OnHit(IHurt target, Vector3 hitPostion)
+    public virtual void OnHit(IHurt target, Vector3 hitPostion)
     {
         Debug.Log("this.name is " + this.name);
         Skill_AttackData attackData = currentSkillConfig.AttackData[currentHitIndex];
@@ -105,23 +106,23 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
         target.Hurt(attackData.HitData, this);
     }
 
-    private void StartFreezeFrame(float time)
+    protected void StartFreezeFrame(float time)
     {
         if(time > 0) StartCoroutine(DoFreezeFrame(time));
     }
-    private IEnumerator DoFreezeFrame(float time)
+    protected IEnumerator DoFreezeFrame(float time)
     {
         Model.Animator.speed = 0;
         yield return new WaitForSeconds(time);
         Model.Animator.speed = 1;
     }
 
-    private void StartFreezeTime(float time)
+    protected void StartFreezeTime(float time)
     {
         if(time > 0) StartCoroutine(DoFreezeTime(time));
     }
 
-    private IEnumerator DoFreezeTime(float time)
+    protected IEnumerator DoFreezeTime(float time)
     {
         Time.timeScale = 0;
         //防止timescale时停影响，需要使用真实的时间
@@ -129,7 +130,7 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
         Time.timeScale = 1;
     }
 
-    private IEnumerator DoSkillHitEF(SkillHitEFConfig hitEFConfig, Vector3 spawnPoint)
+    protected IEnumerator DoSkillHitEF(SkillHitEFConfig hitEFConfig, Vector3 spawnPoint)
     {
         Debug.Log("DoSkillHitEF");
         if(hitEFConfig == null) yield break;
@@ -156,7 +157,8 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
 
     public virtual void Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
     {
-        
+        this.hitData = hitData;
+        this.hurtSource = hurtSource;
     }
 
      public void PlayAnimation(string animationName, float fixedTransitionDuration = 0.25f)

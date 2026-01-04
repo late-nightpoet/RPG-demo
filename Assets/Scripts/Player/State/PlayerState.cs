@@ -12,5 +12,12 @@ public enum PlayerState
     Land,
     DodgeRoll,
 
-    StandAttack
+    StandAttack,
+    HitStagger,
+    KnockUp,
+    KnockAirLoop,
+    KnockDownLand,
+
+    KnockDownRise,
+    Attack,
 }

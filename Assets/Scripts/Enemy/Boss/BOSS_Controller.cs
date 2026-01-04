@@ -61,14 +61,11 @@ public class BOSS_Controller : CharacterBase
         }
     }
 
-    public Skill_HitData hitData {get; private set;}
-    public ISkillOwner hurtSource {get; private set;}
     public override void Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
     {
         //todo boss可能处于霸体或者不可被击倒阶段
         //连击时可以从受伤状态到受伤状态
-        this.hitData = hitData;
-        this.hurtSource = hurtSource;
+        base.Hurt(hitData,hurtSource);
         if (hitData.IsKnockUp)
         {
             // 击飞路线
