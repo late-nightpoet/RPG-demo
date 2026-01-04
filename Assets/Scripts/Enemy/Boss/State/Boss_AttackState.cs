@@ -24,7 +24,9 @@ public class Boss_AttackState : BossStateBase
 
     public override void Enter()
     {
-        CurrentAttackIndex = 0;
+        float dist = Vector3.Distance(boss.transform.position, boss.targetPlayer.transform.position);
+        Debug.Log($"<color=yellow>进入攻击状态，此时距离 Player: {dist}</color>");
+        CurrentAttackIndex = -1;
            boss.Model.SetRootMotionAction((deltaPos, deltaRot) =>
         {
             // 叠加重力，避免悬空
@@ -43,6 +45,8 @@ public class Boss_AttackState : BossStateBase
     {
         //todo 实现连续普攻
         Debug.Log("CurrentAttackIndex is " + CurrentAttackIndex);
+        CurrentAttackIndex += 1; // 只在确认连击时递增
+        boss.transform.LookAt(boss.targetPlayer.transform);
         boss.StartAttack(boss.standAttackConfigs[CurrentAttackIndex]);
     }
 
@@ -55,17 +59,16 @@ public class Boss_AttackState : BossStateBase
 
     public override void Update()
     {
-      
-         if(Input.GetKeyDown(KeyCode.J) && boss.CanSwitchSkill)
-        {
-            Debug.Log("CurrentAttackIndex += 1;");
-            CurrentAttackIndex += 1; // 只在确认连击时递增
-            StandAttack();
-        }
         if (CheckAnimatorStateName(boss.standAttackConfigs[CurrentAttackIndex].AnimationName, out float aniamtionTime) && aniamtionTime>=1)
         {
             // 回到待机
             boss.ChangeState(BossState.Idle);
+            return;
+        }
+        float distance = Vector3.Distance(boss.transform.position, boss.targetPlayer.transform.position);
+        if(distance <= boss.standAttackRange && boss.CanSwitchSkill)
+        {
+            StandAttack();
             return;
         }
 

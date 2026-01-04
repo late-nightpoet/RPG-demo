@@ -57,6 +57,7 @@ public class ModelBase : MonoBehaviour
     // AnimationEvent: enable weapon hitbox for the given weapon index
     private void StartSkillHit(int weaponIndex)
     {
+        Debug.Log($"<color=yellow>动画事件触发: StartSkillHit. 传入参数 Index = {weaponIndex}</color>");
         skillOwner.StartSkillHit(weaponIndex);
         weapons[weaponIndex].StartSkillHit();
     }

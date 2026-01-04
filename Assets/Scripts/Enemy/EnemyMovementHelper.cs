@@ -17,7 +17,6 @@ public sealed class EnemyMovementHelper
         if (enemyBlackBoard.velocity.y > Physics.gravity.y)
         {
             enemyBlackBoard.velocity.y += Physics.gravity.y * enemyBlackBoard.gravityMultiplier * Time.deltaTime;
-            Debug.Log("enemyBlackBoard.velocity.y is " + enemyBlackBoard.velocity.y);
         }
     }
 

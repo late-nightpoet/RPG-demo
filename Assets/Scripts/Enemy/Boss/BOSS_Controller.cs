@@ -19,6 +19,9 @@ public class BOSS_Controller : CharacterBase
     public float walkSpeed;
 
     public float runSpeed;
+
+    //standAttackRange要设置为小于1.5，因为standattack1在大于1.5的距离进行攻击时，虽然看上去特效命中了player,但实际上碰撞体并不会命中player导致player不进入hurt状态感官奇怪
+    public float standAttackRange = 1.5f;
     #endregion
 
     private void Awake()

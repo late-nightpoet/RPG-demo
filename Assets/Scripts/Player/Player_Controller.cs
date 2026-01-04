@@ -159,31 +159,25 @@ public class Player_Controller : CharacterBase
                 stateMachine.ChangeState<Player_IdleState>(reCurrstate);
                 break;
             case PlayerState.Locomotion:
-                Debug.Log("Change to Locomotion State");
                 stateMachine.ChangeState<Player_LocomotionState>(reCurrstate);
                 break;
             case PlayerState.Fall:
-                Debug.Log("Change to Fall State");
                 stateMachine.ChangeState<Player_FallState>(reCurrstate);
                 break;
             case PlayerState.Land:
-                Debug.Log("Change to Land State");
                 stateMachine.ChangeState<Player_LandState>(reCurrstate);
                 break;
             case PlayerState.Jump:
-                Debug.Log("Change to Jump State");
                 stateMachine.ChangeState<Player_JumpState>(reCurrstate);
                 break;
             case PlayerState.DodgeRoll:
-                Debug.Log("Change to Roll State");
                 stateMachine.ChangeState<Player_DodgeRollState>(reCurrstate);
                 break;
             case PlayerState.StandAttack:
-                Debug.Log("Change to StandAttack State");
                 stateMachine.ChangeState<Player_StandAttackState>(reCurrstate);
                 break;
             case PlayerState.HitStagger:
-                Debug.Log("player Change to StandAttack State");
+                Debug.Log("player Change to HitStagger State");
                 stateMachine.ChangeState<Player_HitStaggerState>(reCurrstate);
                 break;
             case PlayerState.KnockUp:

@@ -37,6 +37,8 @@ public class Weapon_Controller : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        // 1. 如果碰到的是对方的武器（通常带有 Weapon_Controller 脚本），直接忽略，让它继续穿透去打身体
+        if(other.GetComponent<Weapon_Controller>() != null) return;
         //敌人或者玩家之间任意有一个是触发器，就会进入该方法
         if(enemeyTagList == null) return;
         if(enemeyTagList.Contains(other.tag))

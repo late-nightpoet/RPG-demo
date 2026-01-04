@@ -17,7 +17,11 @@ public class Boss_Walktate : BossStateBase
     public override void Update()
     {
         float distance = Vector3.Distance(boss.transform.position, boss.targetPlayer.transform.position);
-        if(distance > boss.walkRange)
+        if(distance <= boss.standAttackRange)
+        {
+            boss.ChangeState(BossState.Attack);
+        }
+        else if(distance > boss.walkRange)
         {
             boss.ChangeState(BossState.Run);
           
