@@ -64,7 +64,7 @@ public class Player_DefenseState : PlayerStateBase
                 }
                 break;
             case DefenseChildState.Hold:
-                if(Input.GetKeyUp(KeyCode.B))//如果松开按键,则退出
+                if(!Input.GetKey(KeyCode.B))//如果松开按键,则退出
                 {
                     ChildState = DefenseChildState.Exit;
                 }
@@ -77,7 +77,7 @@ public class Player_DefenseState : PlayerStateBase
                     waitCoroutineattackTimerCoroutine = null;
                     ChildState = DefenseChildState.Counterattack;
                 }
-                else if(Input.GetKeyUp(KeyCode.B))//如果松开按键,则退出
+                else if(!Input.GetKey(KeyCode.B))//如果松开按键,则退出
                 {
                     ChildState = DefenseChildState.Exit;
                 }
