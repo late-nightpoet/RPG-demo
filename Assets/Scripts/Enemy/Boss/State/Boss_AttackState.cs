@@ -83,7 +83,7 @@ public class Boss_AttackState : BossStateBase
         {
             // 只有当名字匹配，且进度“归零”（小于 0.1）时，才认为新动画开始了
             // 否则，如果读到 1.0，说明还是旧数据，本帧忽略
-            if (isNameMatch && animationTime < 0.1f)
+            if (isNameMatch && animationTime < 0.6f)
             {
                 hasAnimStarted = true;
             }
