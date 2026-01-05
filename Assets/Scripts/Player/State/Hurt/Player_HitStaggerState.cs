@@ -38,6 +38,7 @@ public class Player_HitStaggerState : Player_HurtStateBase
         if (player.Model.Animator != null)
         {
             player.Model.Animator.applyRootMotion = true;
+            player.Model.Animator.speed = 1f;
         }
 
         // 3. 【关键步骤 B】注册“传输装置”
@@ -53,8 +54,9 @@ public class Player_HitStaggerState : Player_HurtStateBase
             // 驱动角色旋转（如果动画里有旋转）
             player.transform.rotation *= deltaRot;
         });
+
         currentAnimName = GetDirectionalAnimation();
-        player.PlayAnimation(currentAnimName);
+        player.PlayAnimation(currentAnimName, 0.25f);
     }
 
         // 【核心逻辑】处理先播放、再停顿、再恢复
@@ -65,11 +67,14 @@ public class Player_HitStaggerState : Player_HurtStateBase
         Animator animator = player.Model.Animator;
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
+        // 【新增 1】如果处于过渡状态（CrossFade 正在发生），数据是不准的，直接跳过这一帧
+        if (animator.IsInTransition(0)) return;
+
         // 阶段 1: 还没停顿，正在播放前摇
         if (!isHitStopFrozen)
         {
             // 只有当动画真正开始播放(IsName)，且播放进度超过了设定点(FreezePoint)时，才冻结
-            if (stateInfo.IsName(currentAnimName) && stateInfo.normalizedTime >= HitStaggerFreezePoint)
+            if (stateInfo.IsName(currentAnimName) && stateInfo.normalizedTime >= HitStaggerFreezePoint && stateInfo.normalizedTime < 0.6f)
             {
                 // 进入停顿阶段
                 animator.speed = 0f; // 冻结动画

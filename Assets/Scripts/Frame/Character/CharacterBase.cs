@@ -179,6 +179,12 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
     
     }
 
+    public void PlayAnimation(string animationName, float fixedTransitionDuration, float normalizedTimeOffset, int layer = 0)
+    {
+        if (Model.Animator == null) return;
+        Model.Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration, layer, normalizedTimeOffset);
+    }
+
     public void PlayAudio(AudioClip audioClip)
     {
         if(audioClip != null)audioSource.PlayOneShot(audioClip);
