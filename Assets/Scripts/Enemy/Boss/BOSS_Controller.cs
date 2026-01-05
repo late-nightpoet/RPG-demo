@@ -80,6 +80,7 @@ public class BOSS_Controller : CharacterBase
 
     public override bool Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
     {
+        SetHurtData(hitData, hurtSource);
         //todo boss可能处于霸体或者不可被击倒阶段
         //连击时可以从受伤状态到受伤状态
         if (hitData.IsKnockUp)

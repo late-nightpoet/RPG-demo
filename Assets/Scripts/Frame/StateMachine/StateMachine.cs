@@ -12,6 +12,8 @@ public class StateMachine
     private IStateMachineOwner owner;
     private StateBase currentState;
 
+    public StateBase CurrentState { get=>currentState;}
+
     private Dictionary<Type, StateBase> stateDic = new Dictionary<Type, StateBase>();
     
     public Type CurrentStateType

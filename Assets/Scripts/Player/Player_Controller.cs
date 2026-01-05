@@ -51,7 +51,7 @@ public class Player_Controller : CharacterBase
     [SerializeField]
     private float gravityMultiplier = 2f;
 
-    #region Grounded Srttings
+    #region Grounded Settings
             
     [Tooltip("Layer mask for checking ground.")]
     [SerializeField]
@@ -63,6 +63,18 @@ public class Player_Controller : CharacterBase
     #endregion
 
     #endregion
+
+    #region defence settings
+    //等待反击的时长
+    [SerializeField]
+    public float waitCounterattackTime;
+
+    //反击的动作配置
+    [SerializeField]
+    public SkillConfig counterAttackSkillConfig;
+
+    #endregion
+
 
     #endregion
 
@@ -250,8 +262,21 @@ public class Player_Controller : CharacterBase
             Vector3 enemyToPlayerDir = (ModelTransform.position - enemyTransform.position).normalized;
             float dot = Vector3.Dot(ModelTransform.forward, enemyToPlayerDir);
             //说明敌人在player后方
-            if(dot > 0 ) isDefence = false;
+            if(dot > 0 ) 
+            {
+                //防御失败
+                isDefence = false;
+            }
+            else
+            {
+                //player防御成功
+                //通知防御状态，player仍然受到攻击
+                Player_DefenseState defenseState = (Player_DefenseState)stateMachine.CurrentState;
+                defenseState.Hurt();
+            }
+
         }
+        //防御失败被击飞/击退
         if(!isDefence)
         {
             if (hitData.IsKnockUp)
