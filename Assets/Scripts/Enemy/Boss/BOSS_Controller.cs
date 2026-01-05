@@ -78,11 +78,10 @@ public class BOSS_Controller : CharacterBase
         }
     }
 
-    public override void Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
+    public override bool Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
     {
         //todo boss可能处于霸体或者不可被击倒阶段
         //连击时可以从受伤状态到受伤状态
-        base.Hurt(hitData,hurtSource);
         if (hitData.IsKnockUp)
         {
             // 击飞路线
@@ -93,6 +92,7 @@ public class BOSS_Controller : CharacterBase
             // 原地受击路线
             ChangeState(BossState.HitStagger, true);
         }
+        return true;
     }
 
     #region UnityEditor 针对有多个碰撞体的角色进行标记

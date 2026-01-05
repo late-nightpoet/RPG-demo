@@ -51,6 +51,12 @@ public class Player_IdleState : PlayerStateBase
             player.ChangeState(PlayerState.Fall);
             return;
         }
+        //检测格挡
+        if(Input.GetKeyDown(KeyCode.B))
+        {
+            player.ChangeState(PlayerState.Defence);
+            return;
+        }
         //检测玩家移动输入
         if(player.Ctx.SmoothedMoveInput.magnitude > 0.1f)
         {

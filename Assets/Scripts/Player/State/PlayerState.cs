@@ -20,4 +20,5 @@ public enum PlayerState
 
     KnockDownRise,
     Attack,
+    Defence,
 }

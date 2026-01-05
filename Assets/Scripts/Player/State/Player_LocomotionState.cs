@@ -25,7 +25,7 @@ public class Player_LocomotionState : PlayerStateBase
         
         player.MovementHelper.CalculateInput();
         player.MovementHelper.GroundedCheck();
-       
+        //检测攻击
         if(Input.GetKeyDown(KeyCode.G))
         {
             Debug.Log("Exiting Idle State due to G key press");
@@ -42,10 +42,17 @@ public class Player_LocomotionState : PlayerStateBase
             player.ChangeState(PlayerState.Fall);
             return;
         }
+        //todo 解决player被攻击一次之后按F键不闪躲的bug
         if (player.Ctx.rollRequested && player.Ctx.isGrounded)
         {
             player.Ctx.rollRequested = false;
             player.ChangeState(PlayerState.DodgeRoll);
+            return;
+        }
+        //检测格挡
+        if(Input.GetKeyDown(KeyCode.B))
+        {
+            player.ChangeState(PlayerState.Defence);
             return;
         }
         bool hasMoveInput = player.Ctx.SmoothedMoveInput.magnitude > 0.1f;

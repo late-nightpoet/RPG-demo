@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHurt
+public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHurt
 {
     [SerializeField]protected ModelBase model;
     public ModelBase Model { get { return model; } }
@@ -96,14 +96,24 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
 
     public virtual void OnHit(IHurt target, Vector3 hitPostion)
     {
-        Debug.Log("this.name is " + this.name);
-        Skill_AttackData attackData = currentSkillConfig.AttackData[currentHitIndex];
-        StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig, hitPostion));
-        StartFreezeFrame(attackData.FreezeFrameTime);
-        StartFreezeTime(attackData.FreezeGameTime);
-        //传递伤害数据
-        //todo 传递更多伤害信息
-        target.Hurt(attackData.HitData, this);
+ 
+        // 拿到这一段攻击的数据
+        Skill_AttackData attackData = CurrentSkillConfig.AttackData[currentHitIndex];
+        PlayAudio(attackData.SkillHitEFConfig.AudioClip);//通用音效
+        // 传递伤害数据
+        if(target.Hurt(attackData.HitData, this))
+        {
+            // 生成基于命中配置的效果
+            StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.SpawnObject, hitPostion));
+            StartFreezeFrame(attackData.FreezeFrameTime);
+            StartFreezeTime(attackData.FreezeGameTime);
+        }
+        else
+        {
+            //生成类似只狼里面格挡的刀光效果
+            StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.FailSpawnObject, hitPostion));
+        }
+
     }
 
     protected void StartFreezeFrame(float time)
@@ -130,22 +140,22 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
         Time.timeScale = 1;
     }
 
-    protected IEnumerator DoSkillHitEF(SkillHitEFConfig hitEFConfig, Vector3 spawnPoint)
+    protected IEnumerator DoSkillHitEF(Skill_SpawnObj spawnObj, Vector3 spawnPoint)
     {
+        //修改DoSkillHitEF使其能够通用生成failspawnobj和spawnobj
         Debug.Log("DoSkillHitEF");
-        if(hitEFConfig == null) yield break;
-        PlayAudio(hitEFConfig.AudioClip);
-        if(hitEFConfig.SpawnObject != null && hitEFConfig.SpawnObject.Prefab != null)
+        if(spawnObj == null) yield break;
+        if(spawnObj != null && spawnObj.Prefab != null)
         {
             Debug.Log("DoSkillHitEF hitEFConfig.SpawnObject");
-            yield return new WaitForSeconds(hitEFConfig.SpawnObject.Time);
-            GameObject temp = Instantiate(hitEFConfig.SpawnObject.Prefab);
-            temp.transform.position = spawnPoint + hitEFConfig.SpawnObject.Position;
+            yield return new WaitForSeconds(spawnObj.Time);
+            GameObject temp = Instantiate(spawnObj.Prefab);
+            temp.transform.position = spawnPoint + spawnObj.Position;
             //一般情况下，效果需要朝向镜头显示
             temp.transform.LookAt(Camera.main.transform);
-            temp.transform.eulerAngles += hitEFConfig.SpawnObject.Rotation;
-            temp.transform.localScale += hitEFConfig.SpawnObject.Scale;
-            PlayAudio(hitEFConfig.SpawnObject.AudioClip);
+            temp.transform.eulerAngles += spawnObj.Rotation;
+            temp.transform.localScale += spawnObj.Scale;
+            PlayAudio(spawnObj.AudioClip);
         }
     }
 
@@ -155,12 +165,14 @@ public class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHu
     }
     #endregion
 
-    public virtual void Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
+    public virtual void SetHurtData(Skill_HitData hitData, ISkillOwner hurtSource)
     {
         this.hitData = hitData;
         this.hurtSource = hurtSource;
     }
 
+    public abstract bool Hurt(Skill_HitData hitData, ISkillOwner hurtSource);
+   
      public void PlayAnimation(string animationName, float fixedTransitionDuration = 0.25f)
     {
         Model.Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);

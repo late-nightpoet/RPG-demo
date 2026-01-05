@@ -150,9 +150,10 @@ public class Player_Controller : CharacterBase
         }
         
     }
-
+    private PlayerState currState;
     public void ChangeState(PlayerState playerState, bool reCurrstate = false)
     {
+        currState = playerState;
         switch(playerState)
         {
             case PlayerState.Idle:
@@ -192,6 +193,9 @@ public class Player_Controller : CharacterBase
             case PlayerState.KnockDownRise:
                 stateMachine.ChangeState<Player_KnockDownRiseState>(reCurrstate);
                 break;
+            case PlayerState.Defence:
+                stateMachine.ChangeState<Player_DefenseState>(reCurrstate);
+                break;
         }
     }
 
@@ -216,31 +220,53 @@ public class Player_Controller : CharacterBase
         Debug.Log("player 进入hit");
         // 拿到这一段攻击的数据
         Skill_AttackData attackData = CurrentSkillConfig.AttackData[currentHitIndex];
-        // 生成基于命中配置的效果
-        StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig, hitPostion));
-        // 播放效果类
-        if (attackData.ScreenImpulseValue != 0) ScreenImpulse(attackData.ScreenImpulseValue);
-        if (attackData.ChromaticAberrationValue != 0) PostProcessManager.Instance.ChromaticAberrationEF(attackData.ChromaticAberrationValue);
-        StartFreezeFrame(attackData.FreezeFrameTime);
-        StartFreezeTime(attackData.FreezeGameTime);
+        PlayAudio(attackData.SkillHitEFConfig.AudioClip);//通用音效
         // 传递伤害数据
-        target.Hurt(attackData.HitData, this);
-    }
-
-    public override void Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
-    {
-        Debug.Log("进入player的hurt状态");
-        base.Hurt(hitData, hurtSource);
-        if (hitData.IsKnockUp)
+        if(target.Hurt(attackData.HitData, this))
         {
-            // 击飞路线
-            ChangeState(PlayerState.KnockUp, true);
+            // 生成基于命中配置的效果
+            StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.SpawnObject, hitPostion));
+            // 播放效果类,只有玩家才有该效果
+            if (attackData.ScreenImpulseValue != 0) ScreenImpulse(attackData.ScreenImpulseValue);
+            if (attackData.ChromaticAberrationValue != 0) PostProcessManager.Instance.ChromaticAberrationEF(attackData.ChromaticAberrationValue);
+            StartFreezeFrame(attackData.FreezeFrameTime);
+            StartFreezeTime(attackData.FreezeGameTime);
         }
         else
         {
-            // 原地受击路线
-            ChangeState(PlayerState.HitStagger, true);
+            //生成类似只狼里面格挡的刀光效果
+            StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.FailSpawnObject, hitPostion));
         }
+
+    }
+
+    public override bool Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
+    {
+        SetHurtData(hitData, hurtSource);
+        bool isDefence = currState == PlayerState.Defence;
+        if(isDefence) //玩家有可能背着敌人进行防御，此时防御无效
+        {
+            Transform enemyTransform = ((CharacterBase)hurtSource).ModelTransform;
+            Vector3 enemyToPlayerDir = (ModelTransform.position - enemyTransform.position).normalized;
+            float dot = Vector3.Dot(ModelTransform.forward, enemyToPlayerDir);
+            //说明敌人在player后方
+            if(dot > 0 ) isDefence = false;
+        }
+        if(!isDefence)
+        {
+            if (hitData.IsKnockUp)
+            {
+                // 击飞路线
+                ChangeState(PlayerState.KnockUp, true);
+            }
+            else
+            {
+                // 原地受击路线
+                ChangeState(PlayerState.HitStagger, true);
+            }
+        }
+        return !isDefence;
+        
     }
 
 }
