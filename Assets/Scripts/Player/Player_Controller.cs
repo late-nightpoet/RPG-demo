@@ -139,17 +139,6 @@ public class Player_Controller : CharacterBase
 
     private void Update()
     {
-        // -----------------------------------------------------------------------
-        // 【全局输入监控】这段代码由 Unity 引擎直接驱动，不受状态机逻辑影响
-        // -----------------------------------------------------------------------
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            string stateName = stateMachine.CurrentState != null ? stateMachine.CurrentState.GetType().Name : "Null";
-            Debug.Log($"<color=red>[GLOBAL INPUT] Frame {Time.frameCount} | 检测到 H 键物理按下！</color>");
-            Debug.Log($"   >>> 当前状态机状态: {stateName}");
-            Debug.Log($"   >>> CanSwitchSkill: {CanSwitchSkill}");
-        }
-        //
         if (Input.GetKeyDown(KeyCode.T))
         {
             slowMotionEnabled = !slowMotionEnabled;

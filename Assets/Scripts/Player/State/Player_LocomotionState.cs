@@ -27,7 +27,11 @@ public class Player_LocomotionState : PlayerStateBase
         
         player.MovementHelper.CalculateInput();
         player.MovementHelper.GroundedCheck();
-        
+        //检测到技能的输入
+        if(player.CheckAndEnterSkillState())
+        {
+            return;
+        }
         //检测攻击
         if(Input.GetKeyDown(KeyCode.G))
         {
@@ -67,11 +71,10 @@ public class Player_LocomotionState : PlayerStateBase
         }
         else
         {
-            Debug.Log($"<color=orange>[Frame {Time.frameCount}] 检测到 WASD 输入停止 (Magnitude < 0.1)</color>");
+            
             player.MovementHelper.DecelerateToStop();
             if (player.Ctx.speed2D <= 0.05f)
             {
-                Debug.Log($"<color=purple>[Frame {Time.frameCount}] 检测到 WASD 输入停止 (Magnitude < 0.1)，speed2D <= 0.05f</color>");
                 player.Ctx.isStopped = true;
                 player.ChangeState(PlayerState.Idle);
                 return;

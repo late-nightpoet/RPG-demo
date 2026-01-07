@@ -6,7 +6,6 @@ public class Player_IdleState : PlayerStateBase
 {
    public override void Enter()
     {
-        Debug.Log($"<color=cyan>[Frame {Time.frameCount}] Enter Idle State</color>");
         Debug.Log("Enter Idle State");
         player.Ctx.isStopped = true;
         if (player.Model.Animator != null) player.Model.Animator.applyRootMotion = false;
@@ -18,7 +17,7 @@ public class Player_IdleState : PlayerStateBase
     {
         player.MovementHelper.CalculateInput();
         player.MovementHelper.GroundedCheck();
-        Debug.Log($"<color=cyan>[Frame {Time.frameCount}] update Idle State</color>");
+
         //检测到技能的输入
         if(player.CheckAndEnterSkillState())
         {
