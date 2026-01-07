@@ -21,4 +21,5 @@ public enum PlayerState
     KnockDownRise,
     Attack,
     Defence,
+    SkillAttack,
 }

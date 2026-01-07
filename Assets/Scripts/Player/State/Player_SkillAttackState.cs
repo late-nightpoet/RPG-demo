@@ -2,25 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player_StandAttackState : PlayerStateBase
+public class Player_SkillAttackState : PlayerStateBase
 {
-    //当前处于第几次攻击
-    private int currentAttackIndex;
-
-    private int CurrentAttackIndex
-    {
-        get => currentAttackIndex;
-        set
-        {
-            if(value >= player.standAttackConfigs.Length) currentAttackIndex = 0;
-            else currentAttackIndex = value;
-        }
-    }
+    private SkillConfig skillConfig;
     
 
     public override void Enter()
     {
-        CurrentAttackIndex = 0;
+        Debug.Log("enter Player_SkillAttackState");
            player.Model.SetRootMotionAction((deltaPos, deltaRot) =>
         {
             // 叠加重力，避免悬空
@@ -30,23 +19,26 @@ public class Player_StandAttackState : PlayerStateBase
             player.transform.rotation *= deltaRot;
         });
         CacheAndDisableUpperBodyLayers();
-       
-        // 播放技能
-        StandAttack();
     }
 
-    private void StandAttack()
+    public void InitData(SkillConfig skillConfig)
     {
-        //todo 实现连续普攻
-        Debug.Log("CurrentAttackIndex is " + CurrentAttackIndex);
-        player.StartAttack(player.standAttackConfigs[CurrentAttackIndex]);
+        this.skillConfig = skillConfig;
+        StartSkill();
+    }
+
+    private void StartSkill()
+    {
+        player.StartAttack(skillConfig);
     }
 
     public override void Exit()
     {
+        Debug.Log("exit skillattackstate");
         player.Model.ClearRootMotionAction();
         RestoreUpperBodyLayers();
         player.OnSkillOver();
+        skillConfig = null;
     }
 
     public override void Update()
@@ -54,7 +46,24 @@ public class Player_StandAttackState : PlayerStateBase
         player.MovementHelper.CalculateInput();
         player.MovementHelper.GroundedCheck();
         player.MovementHelper.ApplyGravity();
+        if (CheckAnimatorStateName(skillConfig.AnimationName, out float aniamtionTime) && aniamtionTime>=1)
+        {
+            // 回到待机
+            player.ChangeState(PlayerState.Idle);
+            return;
+        }
+        //如果按下G键就切换到普攻
+        if(CheckStandAttack())
+        {
+            player.ChangeState(PlayerState.StandAttack);
+            return;
+        }
 
+        //检测有没有再次按下技能键播放其他技能
+        if(player.CheckAndEnterSkillState())
+        {
+            return;
+        }
         // 仅在后摇窗口允许取消
         if (player.CanSwitchSkill)
         {
@@ -71,23 +80,7 @@ public class Player_StandAttackState : PlayerStateBase
             }
         }
 
-        //检测技能
-        if(player.CheckAndEnterSkillState())
-        {
-            return;
-        }
-         if(CheckStandAttack())
-        {
-            Debug.Log("CurrentAttackIndex += 1;");
-            CurrentAttackIndex += 1; // 只在确认连击时递增
-            StandAttack();
-        }
-        if (CheckAnimatorStateName(player.standAttackConfigs[CurrentAttackIndex].AnimationName, out float aniamtionTime) && aniamtionTime>=1)
-        {
-            // 回到待机
-            player.ChangeState(PlayerState.Idle);
-            return;
-        }
+
 
         if (player.CurrentSkillConfig.ReleaseData.CanRotate)
         {

@@ -17,6 +17,11 @@ public class Player_IdleState : PlayerStateBase
     {
         player.MovementHelper.CalculateInput();
         player.MovementHelper.GroundedCheck();
+        //检测到技能的输入
+        if(player.CheckAndEnterSkillState())
+        {
+            return;
+        }
         //从locomotion状态切换到idle状态时，先减速到停止再响应跳跃和移动输入
         if (player.Ctx.isStopped)
         {

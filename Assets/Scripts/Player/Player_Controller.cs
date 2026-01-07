@@ -73,6 +73,9 @@ public class Player_Controller : CharacterBase
     [SerializeField]
     public SkillConfig counterAttackSkillConfig;
 
+    //技能的配置
+    public List<SkillInfo> skillInfoList = new List<SkillInfo>();
+
     #endregion
 
 
@@ -146,6 +149,7 @@ public class Player_Controller : CharacterBase
             pauseGame = !pauseGame;
             ApplyTimeScale(pauseGame ? 0f : 1f);
         }
+        UpdateSkillCDTime();
     }
 
     private void OnDestroy()
@@ -208,11 +212,11 @@ public class Player_Controller : CharacterBase
             case PlayerState.Defence:
                 stateMachine.ChangeState<Player_DefenseState>(reCurrstate);
                 break;
+            case PlayerState.SkillAttack:
+                stateMachine.ChangeState<Player_SkillAttackState>(reCurrstate);
+                break;
         }
     }
-
-
-
 
 
     public void ScreenImpulse(float force)
@@ -292,6 +296,35 @@ public class Player_Controller : CharacterBase
         }
         return !isDefence;
         
+    }
+
+    public bool CheckAndEnterSkillState()
+    {
+        if(!CanSwitchSkill) return false;
+
+        for(int i=0; i<skillInfoList.Count; i++)
+        {
+            if(skillInfoList[i].remainCdTime == 0 && Input.GetKeyDown(skillInfoList[i].keyCode))
+            {
+                //释放技能
+                ChangeState(PlayerState.SkillAttack, true);
+                Player_SkillAttackState skillAttackState = (Player_SkillAttackState)stateMachine.CurrentState;
+                skillAttackState.InitData(skillInfoList[i].skillConfig);
+                //设置技能cd
+                skillInfoList[i].remainCdTime = skillInfoList[i].cdTime;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void UpdateSkillCDTime()
+    {
+        for(int i = 0; i< skillInfoList.Count; i++)
+        {
+            skillInfoList[i].remainCdTime = Mathf.Clamp(skillInfoList[i].remainCdTime - Time.deltaTime, 0, skillInfoList[i].cdTime);
+            skillInfoList[i].cdMaskImage.fillAmount = skillInfoList[i].remainCdTime / skillInfoList[i].cdTime;
+        }
     }
 
 }
