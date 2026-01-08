@@ -108,4 +108,6 @@ public class Skill_HitData
 
     //击退、击飞的过渡时间长度
     public float RepelTime;
+    //是否能破防（防御技能）
+    public bool Break;
 }

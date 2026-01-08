@@ -260,6 +260,12 @@ public class Player_Controller : CharacterBase
     {
         SetHurtData(hitData, hurtSource);
         bool isDefence = currState == PlayerState.Defence;
+        //玩家虽然处于防御状态，但是这个技能能破防玩家的防御,被破防后玩家播放哪一个方向的受伤动画具体有hitstagger/knockup状态决定
+        if(isDefence && !hitData.Break)
+        {
+            isDefence = false;
+            
+        }
         if(isDefence) //玩家有可能背着敌人进行防御，此时防御无效
         {
             Transform enemyTransform = ((CharacterBase)hurtSource).ModelTransform;
