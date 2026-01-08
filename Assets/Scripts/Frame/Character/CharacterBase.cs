@@ -92,6 +92,35 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
         skillObj.transform.localScale = spawnObj.Scale;
         skillObj.transform.eulerAngles = Model.transform.eulerAngles + spawnObj.Rotation;
         PlayAudio(spawnObj.AudioClip);
+
+        // 查找是否有技能物体，如果有的话进行初始化
+        if(skillObj.TryGetComponent<SkillObjectBase>(out SkillObjectBase skillObject))
+        {
+            skillObject.Init(enemeyTagList, OnHitForRealseData);
+        }
+    }
+
+    //远程攻击时释放特效
+    public virtual void OnHitForRealseData(IHurt target, Vector3 hitPostion)
+    {
+ 
+        // 拿到这一段攻击的数据
+        Skill_AttackData attackData = CurrentSkillConfig.ReleaseData.AttackData;
+        PlayAudio(attackData.SkillHitEFConfig.AudioClip);//通用音效
+        // 传递伤害数据
+        if(target.Hurt(attackData.HitData, this))
+        {
+            // 生成基于命中配置的效果
+            StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.SpawnObject, hitPostion));
+            StartFreezeFrame(attackData.FreezeFrameTime);
+            StartFreezeTime(attackData.FreezeGameTime);
+        }
+        else
+        {
+            //生成类似只狼里面格挡的刀光效果
+            StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.FailSpawnObject, hitPostion));
+        }
+
     }
 
     public virtual void OnHit(IHurt target, Vector3 hitPostion)

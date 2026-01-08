@@ -16,7 +16,6 @@ public class Player_LocomotionState : PlayerStateBase
         // player.Ctx.velocity.x = 0f;
         // player.Ctx.velocity.z = 0f;
         // player.Ctx.speed2D = 0f;
-        Debug.Log($"<color=red>[Frame {Time.frameCount}] Exit Locomotion State</color>");
         player.Ctx.isStopped = true;
         player.MovementHelper.Sync();
 

@@ -26,6 +26,8 @@ public class Skill_ReleaseData
 
     // 技能运行时是否可以旋转
     public bool CanRotate;
+
+    public Skill_AttackData AttackData;
 }
 
 /// <summary>

@@ -300,26 +300,6 @@ public class Player_Controller : CharacterBase
 
     public bool CheckAndEnterSkillState()
     {
-        // -----------------------------------------------------------------------
-    // 【调试区域】这段代码仅用于排查为什么按键不生效
-    // -----------------------------------------------------------------------
-    
-    // 假设你的技能配置里第0个就是F1，或者你直接写死检测 F1
-    if (Input.GetKeyDown(KeyCode.H)) 
-    {
-        Debug.Log($"<color=red>[Frame {Time.frameCount}] 【硬件输入】检测到 h 物理按下！</color>");
-        Debug.Log($"   >>> 当前 CanSwitchSkill 状态: {CanSwitchSkill}");
-        
-        // 打印第一个技能的CD情况
-        if (skillInfoList.Count > 0)
-        {
-            Debug.Log($"   >>> 技能[{skillInfoList[0].keyCode}] CD剩余: {skillInfoList[0].remainCdTime}");
-            // 检查浮点数精度问题
-            bool isZero = skillInfoList[0].remainCdTime == 0;
-            Debug.Log($"   >>> CD是否严格等于0? : {isZero}");
-        }
-    }
-        
         if(!CanSwitchSkill) 
         {   
            
@@ -329,7 +309,6 @@ public class Player_Controller : CharacterBase
         {
             if(skillInfoList[i].remainCdTime <= 0.1f && Input.GetKeyDown(skillInfoList[i].keyCode))
             {
-                Debug.Log($"<color=magenta>[Frame {Time.frameCount}] 按下攻击键 {skillInfoList[i].keyCode}，触发技能！</color>");
                 //释放技能
                 ChangeState(PlayerState.SkillAttack, true);
                 Player_SkillAttackState skillAttackState = (Player_SkillAttackState)stateMachine.CurrentState;
