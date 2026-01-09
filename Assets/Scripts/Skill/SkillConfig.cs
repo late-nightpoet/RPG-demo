@@ -52,7 +52,7 @@ public class Skill_SpawnObj
     public Vector3 Scale = Vector3.one;
 
     //延迟生成物体的时间
-    public float Time;
+    public float Delay;
 }
 
 

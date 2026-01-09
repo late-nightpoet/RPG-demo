@@ -67,7 +67,7 @@ public class BOSS_Controller : CharacterBase
     public float currentSkillCDTimer;
     public void StartSkill(int index)
     {
-        currentSkillCDTimer = 2f;
+        currentSkillCDTimer = 10f;
         if (index < 0 || index >= skillInfoList.Count) return;
 
         var skillInfo = skillInfoList[index];
@@ -81,6 +81,12 @@ public class BOSS_Controller : CharacterBase
         for (int i = 0; i < skillInfoList.Count; i++)
         {
             skillInfoList[i].remainCdTime = Mathf.Clamp(skillInfoList[i].remainCdTime - Time.deltaTime, 0, skillInfoList[i].cdTime);
+        }
+
+        // [修正] 添加对全局技能冷却计时器的更新
+        if (currentSkillCDTimer > 0)
+        {
+            currentSkillCDTimer -= Time.deltaTime;
         }
     }
 

@@ -48,8 +48,8 @@ public class Boss_AttackState : BossStateBase
         });
         CacheAndDisableUpperBodyLayers();
        
-        // 进入状态后，立即开始一次普通攻击
-        StandAttack();
+        // 进入状态后，立即决策并执行第一次攻击
+        DecideAndAttack();
     }
 
     private void StandAttack()
@@ -123,19 +123,47 @@ public class Boss_AttackState : BossStateBase
         // --- 攻击决策AI (来自参考代码) ---
         if (boss.CanSwitchSkill)
         {
-            float distance = Vector3.Distance(boss.transform.position, boss.targetPlayer.transform.position);
-            if (distance <= boss.standAttackRange && currentAttackTime < boss.attackTime)
+            // 当可以切换技能时（例如，一次攻击的后摇结束），进行下一次攻击决策
+            DecideAndAttack();
+        }
+    }
+
+    /// <summary>
+    /// 决策并执行下一次攻击（技能或普攻）
+    /// </summary>
+    private void DecideAndAttack()
+    {
+        float distance = Vector3.Distance(boss.transform.position, boss.targetPlayer.transform.position);
+        if (distance <= boss.standAttackRange && currentAttackTime < boss.attackTime)
+        {
+            // [修正] 只有在全局技能冷却结束后，才考虑使用技能
+            if (boss.currentSkillCDTimer <= 0)
             {
                 // 最高优先级: 破防技能
                 if (boss.targetPlayer.isDefence)
                 {
                     for (int i = 0; i < boss.skillInfoList.Count; i++)
                     {
-                        if (boss.skillInfoList[i].remainCdTime <= 0 && boss.skillInfoList[i].skillConfig.AttackData.Length > 0)
+                        if (boss.skillInfoList[i].remainCdTime <= 0)
                         {
-                            if (boss.skillInfoList[i].skillConfig.AttackData[0].HitData.Break)
+                            var skillConfig = boss.skillInfoList[i].skillConfig;
+                            bool canBreak = false;
+
+                            // 检查主要攻击数据（例如近战）是否能破防
+                            if (skillConfig.AttackData != null && skillConfig.AttackData.Length > 0 && skillConfig.AttackData[0].HitData != null && skillConfig.AttackData[0].HitData.Break)
                             {
-                                Debug.Log($"[Boss AI] 决策：玩家正在防御，使用破防技能: {boss.skillInfoList[i].skillConfig.AnimationName}");
+                                canBreak = true;
+                            }
+
+                            // 如果主要攻击不能破防，则检查释放数据（例如远程特效）是否能破防
+                            if (!canBreak && skillConfig.ReleaseData != null && skillConfig.ReleaseData.AttackData != null && skillConfig.ReleaseData.AttackData.HitData != null && skillConfig.ReleaseData.AttackData.HitData.Break)
+                            {
+                                canBreak = true;
+                            }
+
+                            if (canBreak)
+                            {
+                                Debug.Log($"[Boss AI] 决策：玩家正在防御，使用破防技能: {skillConfig.AnimationName}");
                                 StartSkill(i);
                                 return;
                             }
@@ -153,18 +181,19 @@ public class Boss_AttackState : BossStateBase
                         return;
                     }
                 }
+            }
 
-                // 最低优先级: 普通攻击
-                int nextAttackIndex = (CurrentAttackIndex + 1) % boss.standAttackConfigs.Length;
-                Debug.Log($"[Boss AI] 决策：无可用技能，进行普通攻击: {boss.standAttackConfigs[nextAttackIndex].AnimationName}");
-                StandAttack();
-            }
-            else
-            {
-                // 超出攻击范围或超时，返回Walk状态
-                Debug.Log($"[Boss AI] 决策：超出范围 (距离: {distance:F2}) 或超时 (时间: {currentAttackTime:F2})，切换到Walk状态");
-                boss.ChangeState(BossState.Walk);
-            }
+            // 最低优先级: 普通攻击
+            // (如果全局技能CD中，或者没有可用技能，则执行普攻)
+            int nextAttackIndex = (CurrentAttackIndex + 1) % boss.standAttackConfigs.Length;
+            Debug.Log($"[Boss AI] 决策：无可用技能或全局CD中，进行普通攻击: {boss.standAttackConfigs[nextAttackIndex].AnimationName}");
+            StandAttack();
+        }
+        else
+        {
+            // 超出攻击范围或超时，返回Walk状态
+            Debug.Log($"[Boss AI] 决策：超出范围 (距离: {distance:F2}) 或超时 (时间: {currentAttackTime:F2})，切换到Walk状态");
+            boss.ChangeState(BossState.Walk);
         }
     }
 

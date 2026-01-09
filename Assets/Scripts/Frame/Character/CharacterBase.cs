@@ -85,7 +85,7 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
     protected IEnumerator DoSpawnObject(Skill_SpawnObj spawnObj)
     {
         //先执行延迟事件
-        yield return new WaitForSeconds(spawnObj.Time);
+        yield return new WaitForSeconds(spawnObj.Delay);
         //之所以不设置为相对父物体是因为父物体是Player,而旋转时旋转的是Player旗下的模型，而player本身并不会旋转
         GameObject skillObj = GameObject.Instantiate(spawnObj.Prefab, null);
         //设置相对于技能释放者所在的位置以及旋转
@@ -108,19 +108,30 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
  
         // 拿到这一段攻击的数据
         Skill_AttackData attackData = CurrentSkillConfig.ReleaseData.AttackData;
-        PlayAudio(attackData.SkillHitEFConfig.AudioClip);//通用音效
+
+        if (attackData == null)
+        {
+            Debug.LogError($"[CharacterBase] OnHitForRealseData: AttackData is null for skill '{CurrentSkillConfig.name}'. Please check the SkillConfig asset's ReleaseData.");
+            return;
+        }
+
+        if (attackData.SkillHitEFConfig != null)
+        {
+            PlayAudio(attackData.SkillHitEFConfig.AudioClip); //通用音效
+        }
+
         // 传递伤害数据
         if(target.Hurt(attackData.HitData, this))
         {
             // 生成基于命中配置的效果
-            StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.SpawnObject, hitPostion));
+            if (attackData.SkillHitEFConfig != null) StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.SpawnObject, hitPostion));
             StartFreezeFrame(attackData.FreezeFrameTime);
             StartFreezeTime(attackData.FreezeGameTime);
         }
         else
         {
             //生成类似只狼里面格挡的刀光效果
-            StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.FailSpawnObject, hitPostion));
+            if (attackData.SkillHitEFConfig != null) StartCoroutine(DoSkillHitEF(attackData.SkillHitEFConfig.FailSpawnObject, hitPostion));
         }
 
     }
@@ -179,7 +190,7 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
         if(spawnObj != null && spawnObj.Prefab != null)
         {
             Debug.Log("DoSkillHitEF hitEFConfig.SpawnObject");
-            yield return new WaitForSeconds(spawnObj.Time);
+            yield return new WaitForSeconds(spawnObj.Delay);
             GameObject temp = Instantiate(spawnObj.Prefab);
             temp.transform.position = spawnPoint + spawnObj.Position;
             //一般情况下，效果需要朝向镜头显示
