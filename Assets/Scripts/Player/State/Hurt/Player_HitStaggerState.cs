@@ -56,7 +56,7 @@ public class Player_HitStaggerState : Player_HurtStateBase
         });
 
         currentAnimName = GetDirectionalAnimation();
-        player.PlayAnimation(currentAnimName, 0.25f);
+        player.PlayAnimation(currentAnimName);
     }
 
         // 【核心逻辑】处理先播放、再停顿、再恢复

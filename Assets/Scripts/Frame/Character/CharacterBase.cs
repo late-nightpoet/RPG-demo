@@ -201,9 +201,17 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
     }
 
     public abstract bool Hurt(Skill_HitData hitData, ISkillOwner hurtSource);
+
+    private string currentAnimationName;
    
-     public void PlayAnimation(string animationName, float fixedTransitionDuration = 0.25f)
+     public void PlayAnimation(string animationName, bool reState = true,float fixedTransitionDuration = 0.25f)
     {
+        //如果新播放的动画与上一次动画相同，并且不需要重置状态就提前返回
+        if(currentAnimationName == animationName && !reState)
+        {
+            return;
+        }
+        currentAnimationName = animationName;
         Model.Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
     
     }

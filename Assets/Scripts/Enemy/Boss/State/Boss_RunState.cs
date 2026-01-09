@@ -8,6 +8,7 @@ public class Boss_RunState : BossStateBase
     {
         boss.PlayAnimation("Run");
         boss.navMeshAgent.enabled = true;
+        boss.navMeshAgent.updateRotation = true; // [修正] 确保奔跑时始终更新朝向，防止从WalkState继承错误的状态。
         boss.navMeshAgent.speed = boss.runSpeed;
         boss.Model.ClearRootMotionAction();
     }
