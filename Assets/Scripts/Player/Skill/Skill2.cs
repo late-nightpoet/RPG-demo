@@ -11,5 +11,6 @@ public class Skill2 : SkillObjectBase
         Destroy(gameObject, 4f);
         //这个延时时长是特效从出现到击中敌人（砸地）中间的时长
         Invoke(nameof(StartSkillHit), 0.8f);
+        Invoke(nameof(StopSkillHit), 0.9f);
     }
 }
