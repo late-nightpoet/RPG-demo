@@ -55,8 +55,33 @@ public class BOSS_Controller : CharacterBase
 
     private void Start()
     {
+        currentSkillCDTimer = 0;
         Init();
         ChangeState(BossState.Idle);
+    }
+
+    private void Update()
+    {
+        UpdateSkillCDTime();
+    }
+    public float currentSkillCDTimer;
+    public void StartSkill(int index)
+    {
+        currentSkillCDTimer = 2f;
+        if (index < 0 || index >= skillInfoList.Count) return;
+
+        var skillInfo = skillInfoList[index];
+        skillInfo.remainCdTime = skillInfo.cdTime; // 重置技能冷却
+        StartAttack(skillInfo.skillConfig);
+    }
+
+    private void UpdateSkillCDTime()
+    {
+        // 每帧更新所有技能的剩余冷却时间
+        for (int i = 0; i < skillInfoList.Count; i++)
+        {
+            skillInfoList[i].remainCdTime = Mathf.Clamp(skillInfoList[i].remainCdTime - Time.deltaTime, 0, skillInfoList[i].cdTime);
+        }
     }
 
     public void ChangeState(BossState bossState, bool reCurrstate = false)

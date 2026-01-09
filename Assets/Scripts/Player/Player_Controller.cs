@@ -73,8 +73,7 @@ public class Player_Controller : CharacterBase
     [SerializeField]
     public SkillConfig counterAttackSkillConfig;
 
-    //技能的配置
-    public List<SkillInfo> skillInfoList = new List<SkillInfo>();
+    public bool isDefence { get => currState == PlayerState.Defence; }
 
     #endregion
 
@@ -95,6 +94,7 @@ public class Player_Controller : CharacterBase
     #endregion
 
     #endregion
+
     void Awake()
     {
         inputReader = GetComponent<PlayerInputReader>();
@@ -261,7 +261,7 @@ public class Player_Controller : CharacterBase
         SetHurtData(hitData, hurtSource);
         bool isDefence = currState == PlayerState.Defence;
         //玩家虽然处于防御状态，但是这个技能能破防玩家的防御,被破防后玩家播放哪一个方向的受伤动画具体有hitstagger/knockup状态决定
-        if(isDefence && !hitData.Break)
+        if(isDefence && hitData.Break)
         {
             isDefence = false;
             

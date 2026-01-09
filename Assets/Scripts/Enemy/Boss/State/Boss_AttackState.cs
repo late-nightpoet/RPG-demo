@@ -25,6 +25,11 @@ public class Boss_AttackState : BossStateBase
     // 【新增变量】用于标记新动画是否真正开始了
     private bool hasAnimStarted = false;
 
+    // 攻击状态总计时
+    private float currentAttackTime = 0;
+    // 当前正在播放的技能配置
+    private SkillConfig currentSkillConfig;
+
     public override void Enter()
     {
         float dist = Vector3.Distance(boss.transform.position, boss.targetPlayer.transform.position);
@@ -32,32 +37,45 @@ public class Boss_AttackState : BossStateBase
         CurrentAttackIndex = -1;
         // 【关键步骤 1】重置标记
         hasAnimStarted = false;
+        currentAttackTime = 0;
+        currentSkillConfig = null;
            boss.Model.SetRootMotionAction((deltaPos, deltaRot) =>
         {
-            // 叠加重力，避免悬空
-            deltaPos.y += boss.Ctx.velocity.y * Time.deltaTime;
-
+            // 使用BOSS_Controller中定义的重力
+            deltaPos.y = boss.gravity * Time.deltaTime;
             boss.CharacterController.Move(deltaPos);
             boss.transform.rotation *= deltaRot;
         });
         CacheAndDisableUpperBodyLayers();
        
-        // 播放技能
+        // 进入状态后，立即开始一次普通攻击
         StandAttack();
     }
 
     private void StandAttack()
     {
-        //todo 实现连续普攻
-        Debug.Log("CurrentAttackIndex is " + CurrentAttackIndex);
         CurrentAttackIndex += 1; // 只在确认连击时递增
-        boss.transform.LookAt(boss.targetPlayer.transform);
-        boss.StartAttack(boss.standAttackConfigs[CurrentAttackIndex]);
+        
+        // 修正LookAt，防止Boss倾斜
+        Vector3 pos = boss.targetPlayer.transform.position;
+        boss.transform.LookAt(new Vector3(pos.x, boss.transform.position.y, pos.z));
 
-        // 注意：StandAttack 内部会增加 Index 并播放新动画
-            // 调用完后，hasAnimStarted 应该再次被设为 false 吗？
-            // 实际上，因为这是同一个 State 内部切换动作，Enter 不会被重新调用。
-            // 所以我们需要在这里手动重置标记！
+        // 记录当前攻击并开始
+        currentSkillConfig = boss.standAttackConfigs[CurrentAttackIndex];
+        boss.StartAttack(currentSkillConfig);
+
+        // 重置动画开始标记
+        hasAnimStarted = false;
+    }
+
+    private void StartSkill(int index)
+    {
+        Vector3 pos = boss.targetPlayer.transform.position;
+        boss.transform.LookAt(new Vector3(pos.x, boss.transform.position.y, pos.z));
+        currentSkillConfig = boss.skillInfoList[index].skillConfig;
+        boss.StartSkill(index);
+
+        // 重置动画开始标记
         hasAnimStarted = false;
     }
 
@@ -66,53 +84,88 @@ public class Boss_AttackState : BossStateBase
         boss.Model.ClearRootMotionAction();
         RestoreUpperBodyLayers();
         boss.OnSkillOver();
+        currentSkillConfig = null;
     }
 
     public override void Update()
     {
-        // 1. 获取动画状态
-        // 注意：这里我们先不把 time 拿来做判断，先检查是否处于过渡
-        bool isNameMatch = CheckAnimatorStateName(boss.standAttackConfigs[CurrentAttackIndex].AnimationName, out float animationTime);
-        
-        // 【关键步骤 2】过渡期保护
-        // 如果 Animator 正在混合（Transition），数据是不准的，直接 return 等待混合结束
-        if (boss.Model.Animator.IsInTransition(0)) return;
+        currentAttackTime += Time.deltaTime;
 
-        // 【关键步骤 3】启动检测（幽灵数据过滤器）
-        if (!hasAnimStarted)
+        // --- 动画状态检查 (保留了hasAnimStarted逻辑) ---
+        if (currentSkillConfig != null)
         {
-            // 只有当名字匹配，且进度“归零”（小于 0.1）时，才认为新动画开始了
-            // 否则，如果读到 1.0，说明还是旧数据，本帧忽略
-            if (isNameMatch && animationTime < 0.6f)
+            bool isNameMatch = CheckAnimatorStateName(currentSkillConfig.AnimationName, out float animationTime);
+            
+            if (boss.Model.Animator.IsInTransition(0)) return;
+
+            if (!hasAnimStarted)
             {
-                hasAnimStarted = true;
+                if (isNameMatch && animationTime < 0.6f)
+                {
+                    hasAnimStarted = true;
+                }
+                else
+                {
+                    // 数据无效，等待下一帧
+                    return;
+                }
             }
-            else
+
+            // 动画播放完毕的后备检查
+            if (isNameMatch && animationTime >= 1f)
             {
-                // 数据无效，等待下一帧
+                // 切换到Walk状态以重新决策
+                boss.ChangeState(BossState.Walk);
                 return;
             }
         }
 
-        // --- 代码走到这里，说明 animationTime 是可信的新数据 ---
-        // 【关键步骤 4】正常的退出逻辑
-        if (isNameMatch && animationTime >= 1f)
+        // --- 攻击决策AI (来自参考代码) ---
+        if (boss.CanSwitchSkill)
         {
-            // 回到待机
-            boss.ChangeState(BossState.Idle);
-            return;
+            float distance = Vector3.Distance(boss.transform.position, boss.targetPlayer.transform.position);
+            if (distance <= boss.standAttackRange && currentAttackTime < boss.attackTime)
+            {
+                // 最高优先级: 破防技能
+                if (boss.targetPlayer.isDefence)
+                {
+                    for (int i = 0; i < boss.skillInfoList.Count; i++)
+                    {
+                        if (boss.skillInfoList[i].remainCdTime <= 0 && boss.skillInfoList[i].skillConfig.AttackData.Length > 0)
+                        {
+                            if (boss.skillInfoList[i].skillConfig.AttackData[0].HitData.Break)
+                            {
+                                Debug.Log($"[Boss AI] 决策：玩家正在防御，使用破防技能: {boss.skillInfoList[i].skillConfig.AnimationName}");
+                                StartSkill(i);
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                // 次高优先级: 其他冷却完毕的技能
+                for (int i = 0; i < boss.skillInfoList.Count; i++)
+                {
+                    if (boss.skillInfoList[i].remainCdTime <= 0)
+                    {
+                        Debug.Log($"[Boss AI] 决策：使用冷却完毕的技能: {boss.skillInfoList[i].skillConfig.AnimationName}");
+                        StartSkill(i);
+                        return;
+                    }
+                }
+
+                // 最低优先级: 普通攻击
+                int nextAttackIndex = (CurrentAttackIndex + 1) % boss.standAttackConfigs.Length;
+                Debug.Log($"[Boss AI] 决策：无可用技能，进行普通攻击: {boss.standAttackConfigs[nextAttackIndex].AnimationName}");
+                StandAttack();
+            }
+            else
+            {
+                // 超出攻击范围或超时，返回Walk状态
+                Debug.Log($"[Boss AI] 决策：超出范围 (距离: {distance:F2}) 或超时 (时间: {currentAttackTime:F2})，切换到Walk状态");
+                boss.ChangeState(BossState.Walk);
+            }
         }
-
-        // 连招逻辑
-        float distance = Vector3.Distance(boss.transform.position, boss.targetPlayer.transform.position);
-        if(distance <= boss.standAttackRange && boss.CanSwitchSkill)
-        {
-            StandAttack();
-
-            
-            return;
-        }
-
     }
 
 

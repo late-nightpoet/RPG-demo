@@ -20,6 +20,8 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
 
     public List<string> enemeyTagList;
     public SkillConfig[] standAttackConfigs;
+    //技能的配置
+    public List<SkillInfo> skillInfoList = new List<SkillInfo>();
 
     public virtual void Init()
     {
