@@ -25,7 +25,15 @@ public class Player_JumpState : PlayerStateBase
         player.MovementHelper.CalculateMoveDirection();
         player.MovementHelper.FaceMoveDirection();
         player.MovementHelper.Sync();
+        if(Input.GetKeyDown(KeyCode.G))
+        {
+            //释放技能
+            player.ChangeState(PlayerState.SkillAttack, true);
 
+            Player_SkillAttackState skillAttackState = (Player_SkillAttackState)player.stateMachine.CurrentState;
+            skillAttackState.InitData(player.skillInfoList[0].skillConfig);
+
+        }
         if (player.Ctx.velocity.y <= 0f)
         {
             player.ChangeState(PlayerState.Fall);

@@ -7,8 +7,10 @@ public class SkillConfig : ScriptableObject
     // 片段名称
     public string AnimationName;
 
+    //远程攻击释放的特效
     public Skill_ReleaseData ReleaseData;
 
+    //近战攻击释放的攻击特效
     public Skill_AttackData[] AttackData;
 }
 

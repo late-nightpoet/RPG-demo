@@ -88,7 +88,7 @@ public class Player_Controller : CharacterBase
 
     #region Attack Settings
 
-
+    public SkillConfig jumpAttackSkillConfig;
 
  
     #endregion
@@ -289,6 +289,9 @@ public class Player_Controller : CharacterBase
         //防御失败被击飞/击退
         if(!isDefence)
         {
+            // 在这里更新HP，因为这是确认玩家受到伤害的逻辑分支
+            UpdateHP(hitData);
+
             if (hitData.IsKnockUp)
             {
                 // 击飞路线

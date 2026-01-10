@@ -145,6 +145,8 @@ public class BOSS_Controller : CharacterBase
             // 原地受击路线
             ChangeState(BossState.HitStagger, true);
         }
+        ScreenLogger.Show("boss hurt");
+        UpdateHP(hitData);
         return true;
     }
 

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillOwner, IHurt
 {
@@ -12,7 +14,7 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
     [SerializeField]protected CharacterController characterController;
     public CharacterController CharacterController { get { return characterController; } }
 
-    protected StateMachine stateMachine;
+    public StateMachine stateMachine { get; private set; }
 
     [SerializeField]protected AudioSource audioSource;
 
@@ -23,8 +25,30 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
     //技能的配置
     public List<SkillInfo> skillInfoList = new List<SkillInfo>();
 
+    public Image HPFillImage;
+    [SerializeField] protected float maxHP;
+
+    protected float currentHP;
+
+    protected float CurrentHP 
+    { 
+        get => currentHP; 
+        set { 
+            currentHP = value;
+            if(currentHP < 0) 
+            {
+                currentHP = 0;
+            //todo 弹出死亡提示框} 
+            }
+            else HPFillImage.fillAmount = currentHP / maxHP;
+        }
+    }
+
+
+
     public virtual void Init()
     {
+        CurrentHP = maxHP;
         stateMachine = new StateMachine();
         stateMachine.Init(this);
         Model.Init(OnFootStep,this, enemeyTagList);
@@ -245,5 +269,10 @@ public abstract class CharacterBase : MonoBehaviour, IStateMachineOwner, ISkillO
         if (footStepAudioClips.Length == 0) return;
         int index = UnityEngine.Random.Range(0, footStepAudioClips.Length);
         audioSource.PlayOneShot(footStepAudioClips[index]);
+    }
+
+    public virtual void UpdateHP(Skill_HitData hitData)
+    {
+        CurrentHP -= hitData.DamgeValue;
     }
 }
