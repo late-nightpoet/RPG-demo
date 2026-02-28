@@ -1,0 +1,98 @@
+classDiagram
+direction LR
+
+class IStateMachineOwner <<interface>>
+class ISkillOwner <<interface>>
+class IHurt <<interface>>
+
+class StateBase {
+  +Init(owner)
+  +Enter()
+  +Exit()
+  +Update()
+  +FixedUpdate()
+  +LateUpdate()
+}
+
+class StateMachine {
+  -currentState : StateBase
+  +Init(owner)
+  +ChangeState~T~()
+  +Stop()
+}
+
+class MonoManager {
+  -updateAction
+  +AddUpdateListener(action)
+  +RemoveUpdateListener(action)
+}
+
+class CharacterBase {
+  #model : ModelBase
+  #characterController : CharacterController
+  +stateMachine : StateMachine
+  +StartAttack(skillConfig)
+  +OnHit(target, hitPos)
+  +Hurt(hitData, source)*
+}
+
+class ModelBase {
+  -animator : Animator
+  -weapons : Weapon_Controller[]
+  +SetRootMotionAction(action)
+  +ClearRootMotionAction()
+}
+
+class Weapon_Controller {
+  +Init(enemyTags, onHitAction)
+  +StartSkillHit()
+  +StopSkillHit()
+}
+
+class Player_Controller
+class BOSS_Controller
+
+class PlayerStateBase
+class BossStateBase
+class Player_DefenseState
+class Player_StandAttackState
+class Player_HitStaggerState
+class Boss_AttackState
+class Boss_WalkState
+class Boss_HitStaggerState
+
+class SkillConfig <<ScriptableObject>>
+class SkillInfo
+class Skill_AttackData
+class Skill_HitData
+class SkillHitEFConfig <<ScriptableObject>>
+
+IStateMachineOwner <|.. CharacterBase
+ISkillOwner <|.. CharacterBase
+IHurt <|.. CharacterBase
+
+CharacterBase <|-- Player_Controller
+CharacterBase <|-- BOSS_Controller
+
+CharacterBase o-- StateMachine
+StateMachine o-- StateBase
+MonoManager ..> StateMachine : Update分发
+
+StateBase <|-- PlayerStateBase
+StateBase <|-- BossStateBase
+PlayerStateBase <|-- Player_DefenseState
+PlayerStateBase <|-- Player_StandAttackState
+PlayerStateBase <|-- Player_HitStaggerState
+BossStateBase <|-- Boss_AttackState
+BossStateBase <|-- Boss_WalkState
+BossStateBase <|-- Boss_HitStaggerState
+
+CharacterBase o-- ModelBase
+ModelBase o-- Weapon_Controller
+Weapon_Controller ..> IHurt : hit target
+
+CharacterBase ..> SkillConfig : plays animation/VFX
+SkillInfo --> SkillConfig
+SkillConfig --> Skill_AttackData
+Skill_AttackData --> Skill_HitData
+Skill_AttackData --> SkillHitEFConfig

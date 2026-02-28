@@ -133,6 +133,15 @@ public class BOSS_Controller : CharacterBase
     public override bool Hurt(Skill_HitData hitData, ISkillOwner hurtSource)
     {
         SetHurtData(hitData, hurtSource);
+
+        // 方案B：只要Boss在释放技能（未完成）期间受伤，就打断本次技能，避免延迟特效/命中继续生效
+        if (CurrentSkillConfig != null && !CanSwitchSkill && !SkillInterrupted)
+        {
+            string interruptedSkill = CurrentSkillConfig.AnimationName;
+            InterruptCurrentSkill();
+            ScreenLogger.Show($"boss skill interrupted by hurt: {interruptedSkill}");
+        }
+
         //todo boss可能处于霸体或者不可被击倒阶段
         //连击时可以从受伤状态到受伤状态
         if (hitData.IsKnockUp)

@@ -289,6 +289,7 @@ public class Player_Controller : CharacterBase
         //防御失败被击飞/击退
         if(!isDefence)
         {
+            Debug.Log($"[Player Hurt] dmg={hitData.DamgeValue:F2} knockUp={hitData.IsKnockUp} break={hitData.Break} hpBefore={CurrentHP:F2} state={currState}");
             // 在这里更新HP，因为这是确认玩家受到伤害的逻辑分支
             UpdateHP(hitData);
 

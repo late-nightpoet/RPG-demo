@@ -1,0 +1,31 @@
+flowchart LR
+  subgraph Input[Input Layer]
+    IA[PlayerInput.inputactions] --> PIR[PlayerInputReader]
+  end
+
+  subgraph Player[Player]
+    PIR --> PMH[PlayerMovementHelper]
+    PC[Player_Controller] --> SM[StateMachine]
+    PMH --> PC
+    SM --> PS[Player States]
+  end
+
+  subgraph Boss[Boss]
+    BC[BOSS_Controller] --> BSM[StateMachine]
+    BSM --> BS[Boss States]
+    BS --> NMA[NavMeshAgent追击/对峙]
+  end
+
+  subgraph Combat[Combat Pipeline]
+    PC --> CB[CharacterBase: StartAttack/OnHit]
+    BC --> CB
+    CB --> MB[ModelBase(Animator)]
+    MB -->|OnAnimatorMove| RM[RootMotionAction回调]
+    RM --> CC[CharacterController.Move]
+
+    MB -->|AnimationEvent\nStartSkillHit/StopSkillHit| WC[Weapon_Controller]
+    WC -->|OnTriggerStay| HIT[OnHit/OnHitForReleaseData]
+    HIT -->|IHurt.Hurt| HURT[Player/Boss Hurt]
+    HURT -->|ChangeState| SM
+    HURT -->|ChangeState| BSM
+  end
